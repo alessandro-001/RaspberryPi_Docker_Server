@@ -1,0 +1,21 @@
+1775639265: mosquitto version 2.1.2 starting
+1775639265: Config loaded from /mosquitto/config/mosquitto.conf.
+1775639265: Bridge support available.
+1775639265: Persistence support available.
+1775639265: TLS support available.
+1775639265: TLS-PSK support available.
+1775639265: Websockets support available.
+1775639265: Opening ipv4 listen socket on port 1883.
+1775639265: Opening ipv6 listen socket on port 1883.
+1775639265: mosquitto version 2.1.2 running
+1775639266: New connection from 172.18.0.5:40256 on port 1883.
+1775639266: New client connected from 172.18.0.5:40256 as Telegraf-Consumer-bATl4 (p4, c1, k60).
+1775639949: New connection from 142.251.12.207:53910 on port 1883.
+1775639949: New client connected from 142.251.12.207:53910 as ESP32Client (p4, c1, k15).
+1775640563: Client ESP32Client [142.251.12.207:53910] disconnected: exceeded timeout.
+1775640565: New connection from 142.251.12.207:64947 on port 1883.
+1775640565: New client connected from 142.251.12.207:64947 as ESP32Client (p4, c1, k15).
+1775640592: New connection from 142.251.12.207:48932 on port 1883.
+1775640592: Client ESP32Client [142.251.12.207:64947] disconnected: session taken over.
+1775640592: New client connected from 142.251.12.207:48932 as ESP32Client (p4, c1, k15).
+1775641066: Saving in-memory database to /mosquitto/data//mosquitto.db.
