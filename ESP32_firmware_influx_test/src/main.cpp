@@ -3,6 +3,8 @@
 #include <ArduinoJson.h>
 #include <Adafruit_SHTC3.h>
 
+// hello!
+
 
 const char* ssid       = "EEXME Solution Co Ltd";
 const char* password   = "EEXMESOLUTION1568";

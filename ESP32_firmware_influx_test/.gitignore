@@ -3,3 +3,10 @@
 .vscode/c_cpp_properties.json
 .vscode/launch.json
 .vscode/ipch
+
+
+# Ignore build files and directories
+esp32-influx/mosquitto/data/
+esp32-influx/mosquitto/log/
+esp32-firmware/.pio/
+esp32-firmware/.vscode/
