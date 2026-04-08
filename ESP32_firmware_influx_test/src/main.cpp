@@ -3,15 +3,14 @@
 #include <ArduinoJson.h>
 #include <Adafruit_SHTC3.h>
 
-// hello!
-
-
+// WiFi and MQTT configuration
 const char* ssid       = "EEXME Solution Co Ltd";
 const char* password   = "EEXMESOLUTION1568";
 const char* mqttServer = "192.168.0.250"; 
 const int   mqttPort   = 1883;
 const char* mqttTopic  = "esp32/sensors";
 
+// Initialize WiFi, MQTT client, and SHTC3 sensor
 WiFiClient espClient;
 PubSubClient client(espClient);
 Adafruit_SHTC3 shtc3;
