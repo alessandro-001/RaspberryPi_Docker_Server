@@ -19,3 +19,102 @@
 1775640592: Client ESP32Client [142.251.12.207:64947] disconnected: session taken over.
 1775640592: New client connected from 142.251.12.207:48932 as ESP32Client (p4, c1, k15).
 1775641066: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775642867: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775644668: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775644735: mosquitto version 2.1.2 terminating
+1775644735: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775702825: mosquitto version 2.1.2 starting
+1775702825: Config loaded from /mosquitto/config/mosquitto.conf.
+1775702825: Bridge support available.
+1775702825: Persistence support available.
+1775702825: TLS support available.
+1775702825: TLS-PSK support available.
+1775702825: Websockets support available.
+1775702825: Opening ipv4 listen socket on port 1883.
+1775702825: Opening ipv6 listen socket on port 1883.
+1775702825: mosquitto version 2.1.2 running
+1775702826: New connection from 172.18.0.4:44252 on port 1883.
+1775702826: New client connected from 172.18.0.4:44252 as Telegraf-Consumer-pBmf5 (p4, c1, k60).
+1775703531: New connection from 172.18.0.1:56822 on port 1883.
+1775703531: New client connected from 172.18.0.1:56822 as ESP32Client (p4, c1, k15).
+1775703803: New connection from 172.18.0.1:63620 on port 1883.
+1775703803: New client connected from 172.18.0.1:63620 as postman-mqtt-client-1775703803449 (p5, c1, k60).
+1775703834: Client postman-mqtt-client-1775703803449 [172.18.0.1:63620] disconnected: connection closed by client.
+1775703839: New connection from 172.18.0.1:57940 on port 1883.
+1775703839: New client connected from 172.18.0.1:57940 as postman-mqtt-client-1775703803449 (p5, c1, k60).
+1775703857: Client postman-mqtt-client-1775703803449 [172.18.0.1:57940] disconnected: connection closed by client.
+1775704626: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775706426: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775708181: Client ESP32Client [172.18.0.1:56822] disconnected: exceeded timeout.
+1775708186: New connection from 172.18.0.1:56472 on port 1883.
+1775708186: New client connected from 172.18.0.1:56472 as ESP32Client (p4, c1, k15).
+1775708228: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775708457: Client ESP32Client [172.18.0.1:56472] disconnected: connection closed by client.
+1775708462: New connection from 172.18.0.1:57654 on port 1883.
+1775708462: New client connected from 172.18.0.1:57654 as ESP32Client (p4, c1, k15).
+1775710028: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775710335: Client ESP32Client [172.18.0.1:57654] disconnected: exceeded timeout.
+1775710341: New connection from 172.18.0.1:62608 on port 1883.
+1775710341: New client connected from 172.18.0.1:62608 as ESP32Client (p4, c1, k15).
+1775711182: Client ESP32Client [172.18.0.1:62608] disconnected: exceeded timeout.
+1775711201: New connection from 172.18.0.1:55146 on port 1883.
+1775711201: New client connected from 172.18.0.1:55146 as ESP32Client (p4, c1, k15).
+1775711258: Client ESP32Client [172.18.0.1:55146] disconnected: exceeded timeout.
+1775711262: New connection from 172.18.0.1:55538 on port 1883.
+1775711264: New client connected from 172.18.0.1:55538 as ESP32Client (p4, c1, k15).
+1775711830: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775713631: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775714540: Client ESP32Client [172.18.0.1:55538] disconnected: exceeded timeout.
+1775715432: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775717232: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775719033: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775720834: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775722635: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775724436: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775725725: New connection from 172.18.0.1:61192 on port 1883.
+1775725725: New client connected from 172.18.0.1:61192 as ESP32Client (p4, c1, k15).
+1775725727: New connection from 172.18.0.1:60920 on port 1883.
+1775725727: Client ESP32Client [172.18.0.1:61192] disconnected: session taken over.
+1775725727: New client connected from 172.18.0.1:60920 as ESP32Client (p4, c1, k15).
+1775726237: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775726574: New connection from 172.18.0.1:60066 on port 1883.
+1775726574: New connection from 172.18.0.1:60076 on port 1883.
+1775726574: Protocol error from 172.18.0.1:60066: First packet not CONNECT (47).
+1775726574: Client 172.18.0.1 [172.18.0.1:60066] disconnected: protocol error.
+1775726575: Protocol error from 172.18.0.1:60076: First packet not CONNECT (47).
+1775726575: Client 172.18.0.1 [172.18.0.1:60076] disconnected: protocol error.
+1775726575: New connection from 172.18.0.1:60082 on port 1883.
+1775726575: Protocol error from 172.18.0.1:60082: First packet not CONNECT (47).
+1775726575: Client 172.18.0.1 [172.18.0.1:60082] disconnected: protocol error.
+1775726575: New connection from 172.18.0.1:60092 on port 1883.
+1775726575: Protocol error from 172.18.0.1:60092: First packet not CONNECT (47).
+1775726575: Client 172.18.0.1 [172.18.0.1:60092] disconnected: protocol error.
+1775727205: New connection from 172.18.0.1:55216 on port 1883.
+1775727205: Client ESP32Client [172.18.0.1:60920] disconnected: session taken over.
+1775727205: New client connected from 172.18.0.1:55216 as ESP32Client (p4, c1, k15).
+1775728038: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775729840: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775731640: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775733441: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775735051: Client ESP32Client [172.18.0.1:55216] disconnected: exceeded timeout.
+1775740256: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775794511: New connection from 172.18.0.1:63386 on port 1883.
+1775794511: New client connected from 172.18.0.1:63386 as ESP32Client (p4, c1, k15).
+1775798130: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775799311: Client Telegraf-Consumer-pBmf5 [172.18.0.4:44252] disconnected.
+1775799311: New connection from 172.18.0.4:50070 on port 1883.
+1775799311: New client connected from 172.18.0.4:50070 as Telegraf-Consumer-37X9D (p4, c1, k60).
+1775799480: New connection from 172.18.0.1:60142 on port 1883.
+1775799480: Client ESP32Client [172.18.0.1:63386] disconnected: session taken over.
+1775799480: New client connected from 172.18.0.1:60142 as ESP32Client (p4, c1, k15).
+1775799495: Client ESP32Client [172.18.0.1:60142] disconnected: connection closed by client.
+1775799634: New connection from 172.18.0.1:64208 on port 1883.
+1775799634: Client 172.18.0.1 [172.18.0.1:64208] disconnected: connection closed by client.
+1775799931: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775800427: New connection from 172.18.0.1:57084 on port 1883.
+1775800427: New client connected from 172.18.0.1:57084 as IESWIC3A-8856A67561D4 (p4, c1, k15).
+1775801732: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775803533: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775805334: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775807135: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775808936: Saving in-memory database to /mosquitto/data//mosquitto.db.
