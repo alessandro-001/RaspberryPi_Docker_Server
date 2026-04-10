@@ -119,3 +119,22 @@
 1775807135: Saving in-memory database to /mosquitto/data//mosquitto.db.
 1775808936: Saving in-memory database to /mosquitto/data//mosquitto.db.
 1775810737: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775812537: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775813192: Client Telegraf-Consumer-37X9D [172.18.0.4:50070] disconnected.
+1775813192: mosquitto version 2.1.2 terminating
+1775813192: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775813199: mosquitto version 2.1.2 starting
+1775813199: Config loaded from /mosquitto/config/mosquitto.conf.
+1775813199: Bridge support available.
+1775813199: Persistence support available.
+1775813199: TLS support available.
+1775813199: TLS-PSK support available.
+1775813199: Websockets support available.
+1775813199: Opening ipv4 listen socket on port 1883.
+1775813199: Opening ipv6 listen socket on port 1883.
+1775813199: mosquitto version 2.1.2 running
+1775813200: New connection from 172.18.0.6:55532 on port 1883.
+1775813200: New client connected from 172.18.0.6:55532 as Telegraf-Consumer-NbRoB (p4, c1, k60).
+1775813215: New connection from 192.168.65.1:48761 on port 1883.
+1775813215: New client connected from 192.168.65.1:48761 as IESWIC3A-8856A67561D4 (p4, c1, k15).
+1775814999: Saving in-memory database to /mosquitto/data//mosquitto.db.
