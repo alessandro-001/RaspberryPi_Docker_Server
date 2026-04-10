@@ -138,3 +138,9 @@
 1775813215: New connection from 192.168.65.1:48761 on port 1883.
 1775813215: New client connected from 192.168.65.1:48761 as IESWIC3A-8856A67561D4 (p4, c1, k15).
 1775814999: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775815975: Client IESWIC3A-8856A67561D4 [192.168.65.1:48761] disconnected: exceeded timeout.
+1775815981: New connection from 192.168.65.1:35614 on port 1883.
+1775815981: New client connected from 192.168.65.1:35614 as IESWIC3A-8856A67561D4 (p4, c1, k15).
+1775816049: New connection from 192.168.65.1:49508 on port 1883.
+1775816049: New client connected from 192.168.65.1:49508 as IESWIC3A-8856A674F520 (p4, c1, k15).
+1775816801: Saving in-memory database to /mosquitto/data//mosquitto.db.

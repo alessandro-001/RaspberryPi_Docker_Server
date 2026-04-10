@@ -13,7 +13,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = FastAPI(
-    title="IoT Sensor Alarm API",
+    title="Boss Farm Sensors API",
     description="Real-time alarm management for IESWIC3A multi-sensor devices",
     version="1.0.0"
 )
