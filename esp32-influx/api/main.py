@@ -9,6 +9,7 @@ from influxdb_client import InfluxDBClient
 from influxdb_client.client.write_api import SYNCHRONOUS
 import logging
 
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -321,52 +322,52 @@ async def get_alarm_history(hours: int = Query(24, ge=1, le=720)):
         logger.error(f"Error fetching alarm history: {e}")
         return []
 
-@app.post("/api/alarms/{device_id}/{alert_type}/acknowledge")
-async def acknowledge_alarm(device_id: str, alert_type: str):
-    """Mark an alarm as acknowledged"""
-    try:
-        timestamp = int(datetime.utcnow().timestamp())
-        point = (
-            f"alert_events,device_id={device_id},alert_type={alert_type} "
-            f"acknowledged=true {timestamp}"
-        )
-        write_api.write(bucket=INFLUXDB_BUCKET, org=INFLUXDB_ORG, write_precision="s", record=point)
+# @app.post("/api/alarms/{device_id}/{alert_type}/acknowledge")
+# async def acknowledge_alarm(device_id: str, alert_type: str):
+#     """Mark an alarm as acknowledged"""
+#     try:
+#         timestamp = int(datetime.utcnow().timestamp())
+#         point = (
+#             f"alert_events,device_id={device_id},alert_type={alert_type} "
+#             f"acknowledged=true {timestamp}"
+#         )
+#         write_api.write(bucket=INFLUXDB_BUCKET, org=INFLUXDB_ORG, write_precision="s", record=point)
         
-        logger.info(f"Alarm acknowledged: {device_id} - {alert_type}")
-        return {
-            "status": "acknowledged",
-            "device_id": device_id,
-            "alert_type": alert_type,
-            "timestamp": datetime.utcnow().isoformat()
-        }
-    except Exception as e:
-        logger.error(f"Error acknowledging alarm: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+#         logger.info(f"Alarm acknowledged: {device_id} - {alert_type}")
+#         return {
+#             "status": "acknowledged",
+#             "device_id": device_id,
+#             "alert_type": alert_type,
+#             "timestamp": datetime.utcnow().isoformat()
+#         }
+#     except Exception as e:
+#         logger.error(f"Error acknowledging alarm: {e}")
+#         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/thresholds/{device_id}", response_model=Dict[str, float])
 async def get_thresholds(device_id: str):
     """Get current threshold settings for a device"""
     return get_device_thresholds(device_id)
 
-@app.post("/api/thresholds/{device_id}")
-async def set_thresholds(device_id: str, config: DeviceConfig):
-    """Set threshold values for a device"""
-    try:
-        timestamp = int(datetime.utcnow().timestamp())
-        fields = ",".join([f"{k}={v}" for k, v in config.thresholds.items()])
-        point = f"device_config,device_id={device_id} {fields} {timestamp}"
+# @app.post("/api/thresholds/{device_id}")
+# async def set_thresholds(device_id: str, config: DeviceConfig):
+#     """Set threshold values for a device"""
+#     try:
+#         timestamp = int(datetime.utcnow().timestamp())
+#         fields = ",".join([f"{k}={v}" for k, v in config.thresholds.items()])
+#         point = f"device_config,device_id={device_id} {fields} {timestamp}"
         
-        write_api.write(bucket=INFLUXDB_BUCKET, org=INFLUXDB_ORG, write_precision="s", record=point)
+#         write_api.write(bucket=INFLUXDB_BUCKET, org=INFLUXDB_ORG, write_precision="s", record=point)
         
-        logger.info(f"Thresholds updated for {device_id}: {config.thresholds}")
-        return {
-            "status": "updated",
-            "device_id": device_id,
-            "thresholds": config.thresholds
-        }
-    except Exception as e:
-        logger.error(f"Error setting thresholds: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+#         logger.info(f"Thresholds updated for {device_id}: {config.thresholds}")
+#         return {
+#             "status": "updated",
+#             "device_id": device_id,
+#             "thresholds": config.thresholds
+#         }
+#     except Exception as e:
+#         logger.error(f"Error setting thresholds: {e}")
+#         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/devices/{device_id}/latest")
 async def get_device_latest_reading(device_id: str):
