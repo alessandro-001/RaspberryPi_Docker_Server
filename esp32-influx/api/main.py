@@ -133,8 +133,12 @@ def get_device_thresholds(device_id: str) -> Dict[str, float]:
             for record in table.records:
                 field = record.get_field()
                 value = record.get_value()
-                if field in thresholds:
-                    thresholds[field] = value
+                # Filter out non-numeric fields (booleans, strings) to avoid aggregation errors
+                if field in thresholds and isinstance(value, (int, float)):
+                    try:
+                        thresholds[field] = float(value)
+                    except (ValueError, TypeError):
+                        logger.warning(f"Skipping non-numeric threshold {field}={value}")
         return thresholds
     except Exception as e:
         logger.warning(f"Using default thresholds for {device_id}: {e}")
@@ -146,7 +150,7 @@ def write_alert_event(device_id: str, alert_type: str, value: float, threshold: 
         timestamp = int(datetime.utcnow().timestamp())
         point = (
             f"alert_events,device_id={device_id},alert_type={alert_type} "
-            f"value={value},threshold={threshold},acknowledged=false {timestamp}"
+            f"value={value},threshold={threshold},acknowledged=false {timestamp}"        
         )
         write_api.write(bucket=INFLUXDB_BUCKET, org=INFLUXDB_ORG, write_precision="s", record=point)
         logger.info(f"Alert written: {device_id} - {alert_type} (value={value}, threshold={threshold})")
@@ -237,53 +241,69 @@ async def get_active_alarms():
     """Get all currently active (unacknowledged) alarms"""
     query = f'''
     from(bucket: "{INFLUXDB_BUCKET}")
-      |> range(start: -24h)
-      |> filter(fn: (r) => r._measurement == "alert_events" and r.acknowledged == false)
-      |> group(columns: ["device_id", "alert_type"])
-      |> last()
-      |> sort(columns: ["_time"], desc: true)
+    |> range(start: -24h)
+    |> filter(fn: (r) => r._measurement == "alert_events")
+    |> filter(fn: (r) => r._field == "value" or r._field == "threshold")
     '''
     try:
         result = query_api.query(query=query, org=INFLUXDB_ORG)
-        alarms = []
+        alarms_dict = {}
+        record_count = 0
         
         for table in result:
             for record in table.records:
-                device_id = record.tags.get("device_id", "unknown")
-                alert_type = record.tags.get("alert_type", "unknown")
+                record_count += 1
+                # Debug: log what we're getting
+                logger.info(f"Record {record_count}: tags={record.tags}, field={record.get_field()}, value={record.get_value()}")
                 
-                # Find value and threshold in fields
-                value = 0.0
-                threshold = 0.0
+                device_id = record.tags.get("device_id") if record.tags else None
+                alert_type = record.tags.get("alert_type") if record.tags else None
                 field = record.get_field()
+                value = record.get_value()
+                timestamp = record.get_time()
+                
+                if not device_id or not alert_type:
+                    logger.warning(f"Missing device_id or alert_type: {device_id}, {alert_type}")
+                    continue
+                
+                # Skip acknowledged records
+                if field == "acknowledged" and value == True:
+                    logger.info(f"Skipping acknowledged alarm: {device_id} - {alert_type}")
+                    continue
+                
+                key = (device_id, alert_type, str(timestamp))
+                if key not in alarms_dict:
+                    alarms_dict[key] = {"device_id": device_id, "alert_type": alert_type, "triggered_at": timestamp}
                 
                 if field == "value":
-                    value = record.get_value()
+                    alarms_dict[key]["value"] = float(value)
                 elif field == "threshold":
-                    threshold = record.get_value()
-                
-                # Compute time elapsed
-                triggered_at = record.get_time()
+                    alarms_dict[key]["threshold"] = float(value)
+        
+        logger.info(f"Total records processed: {record_count}, alarms_dict size: {len(alarms_dict)}")
+        
+        alarms = []
+        for alarm_data in alarms_dict.values():
+            if "value" in alarm_data and "threshold" in alarm_data:
                 now = datetime.utcnow().replace(tzinfo=None)
-                elapsed = now - triggered_at.replace(tzinfo=None)
+                elapsed = now - alarm_data["triggered_at"].replace(tzinfo=None)
                 hours = int(elapsed.total_seconds() / 3600)
                 minutes = int((elapsed.total_seconds() % 3600) / 60)
-                
                 time_elapsed = f"{hours}h {minutes}m ago" if hours > 0 else f"{minutes}m ago"
                 
-                alarm = ActiveAlarm(
-                    device_id=device_id,
-                    alert_type=alert_type,
-                    value=value,
-                    threshold=threshold,
-                    triggered_at=triggered_at.isoformat(),
+                alarms.append(ActiveAlarm(
+                    device_id=alarm_data["device_id"],
+                    alert_type=alarm_data["alert_type"],
+                    value=alarm_data["value"],
+                    threshold=alarm_data["threshold"],
+                    triggered_at=alarm_data["triggered_at"].isoformat(),
                     time_elapsed=time_elapsed
-                )
-                alarms.append(alarm)
+                ))
         
+        logger.info(f"Returning {len(alarms)} active alarms")
         return alarms
     except Exception as e:
-        logger.error(f"Error fetching active alarms: {e}")
+        logger.error(f"Error fetching active alarms: {e}", exc_info=True)
         return []
 
 @app.get("/api/alarms/history")
@@ -322,52 +342,55 @@ async def get_alarm_history(hours: int = Query(24, ge=1, le=720)):
         logger.error(f"Error fetching alarm history: {e}")
         return []
 
-# @app.post("/api/alarms/{device_id}/{alert_type}/acknowledge")
-# async def acknowledge_alarm(device_id: str, alert_type: str):
-#     """Mark an alarm as acknowledged"""
-#     try:
-#         timestamp = int(datetime.utcnow().timestamp())
-#         point = (
-#             f"alert_events,device_id={device_id},alert_type={alert_type} "
-#             f"acknowledged=true {timestamp}"
-#         )
-#         write_api.write(bucket=INFLUXDB_BUCKET, org=INFLUXDB_ORG, write_precision="s", record=point)
+@app.post("/api/alarms/{device_id}/{alert_type}/acknowledge")
+async def acknowledge_alarm(device_id: str, alert_type: str):
+    """Mark an alarm as acknowledged"""
+    try:
+        timestamp = int(datetime.utcnow().timestamp())
+        point = (
+            f"alert_events,device_id={device_id},alert_type={alert_type} "
+            f"acknowledged=true {timestamp}"
+        )
+        write_api.write(bucket=INFLUXDB_BUCKET, org=INFLUXDB_ORG, write_precision="s", record=point)
         
-#         logger.info(f"Alarm acknowledged: {device_id} - {alert_type}")
-#         return {
-#             "status": "acknowledged",
-#             "device_id": device_id,
-#             "alert_type": alert_type,
-#             "timestamp": datetime.utcnow().isoformat()
-#         }
-#     except Exception as e:
-#         logger.error(f"Error acknowledging alarm: {e}")
-#         raise HTTPException(status_code=500, detail=str(e))
+        logger.info(f"Alarm acknowledged: {device_id} - {alert_type}")
+        return {
+            "status": "acknowledged",
+            "device_id": device_id,
+            "alert_type": alert_type,
+            "timestamp": datetime.utcnow().isoformat()
+        }
+    except Exception as e:
+        logger.error(f"Error acknowledging alarm: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/thresholds/{device_id}", response_model=Dict[str, float])
 async def get_thresholds(device_id: str):
     """Get current threshold settings for a device"""
     return get_device_thresholds(device_id)
 
-# @app.post("/api/thresholds/{device_id}")
-# async def set_thresholds(device_id: str, config: DeviceConfig):
-#     """Set threshold values for a device"""
-#     try:
-#         timestamp = int(datetime.utcnow().timestamp())
-#         fields = ",".join([f"{k}={v}" for k, v in config.thresholds.items()])
-#         point = f"device_config,device_id={device_id} {fields} {timestamp}"
+@app.post("/api/thresholds/{device_id}")
+async def set_thresholds(device_id: str, config: DeviceConfig):
+    """Set threshold values for a device"""
+    try:
+        timestamp = int(datetime.utcnow().timestamp())
+        # Only include numeric threshold fields to avoid boolean type conflicts
+        numeric_thresholds = {k: v for k, v in config.thresholds.items() 
+                             if isinstance(v, (int, float))}
+        fields = ",".join([f"{k}={v}" for k, v in numeric_thresholds.items()])
+        point = f"device_config,device_id={device_id} {fields} {timestamp}"
         
-#         write_api.write(bucket=INFLUXDB_BUCKET, org=INFLUXDB_ORG, write_precision="s", record=point)
+        write_api.write(bucket=INFLUXDB_BUCKET, org=INFLUXDB_ORG, write_precision="s", record=point)
         
-#         logger.info(f"Thresholds updated for {device_id}: {config.thresholds}")
-#         return {
-#             "status": "updated",
-#             "device_id": device_id,
-#             "thresholds": config.thresholds
-#         }
-#     except Exception as e:
-#         logger.error(f"Error setting thresholds: {e}")
-#         raise HTTPException(status_code=500, detail=str(e))
+        logger.info(f"Thresholds updated for {device_id}: {config.thresholds}")
+        return {
+            "status": "updated",
+            "device_id": device_id,
+            "thresholds": config.thresholds
+        }
+    except Exception as e:
+        logger.error(f"Error setting thresholds: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/devices/{device_id}/latest")
 async def get_device_latest_reading(device_id: str):
