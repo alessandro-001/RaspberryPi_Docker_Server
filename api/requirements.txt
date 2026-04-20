@@ -1,0 +1,5 @@
+fastapi==0.115.5
+uvicorn==0.30.6
+influxdb-client==1.18.0
+python-dateutil==2.8.2
+pydantic==2.5.0

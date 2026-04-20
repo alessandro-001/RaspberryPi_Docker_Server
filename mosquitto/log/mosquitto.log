@@ -1,0 +1,764 @@
+1775639265: mosquitto version 2.1.2 starting
+1775639265: Config loaded from /mosquitto/config/mosquitto.conf.
+1775639265: Bridge support available.
+1775639265: Persistence support available.
+1775639265: TLS support available.
+1775639265: TLS-PSK support available.
+1775639265: Websockets support available.
+1775639265: Opening ipv4 listen socket on port 1883.
+1775639265: Opening ipv6 listen socket on port 1883.
+1775639265: mosquitto version 2.1.2 running
+1775639266: New connection from 172.18.0.5:40256 on port 1883.
+1775639266: New client connected from 172.18.0.5:40256 as Telegraf-Consumer-bATl4 (p4, c1, k60).
+1775639949: New connection from 142.251.12.207:53910 on port 1883.
+1775639949: New client connected from 142.251.12.207:53910 as ESP32Client (p4, c1, k15).
+1775640563: Client ESP32Client [142.251.12.207:53910] disconnected: exceeded timeout.
+1775640565: New connection from 142.251.12.207:64947 on port 1883.
+1775640565: New client connected from 142.251.12.207:64947 as ESP32Client (p4, c1, k15).
+1775640592: New connection from 142.251.12.207:48932 on port 1883.
+1775640592: Client ESP32Client [142.251.12.207:64947] disconnected: session taken over.
+1775640592: New client connected from 142.251.12.207:48932 as ESP32Client (p4, c1, k15).
+1775641066: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775642867: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775644668: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775644735: mosquitto version 2.1.2 terminating
+1775644735: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775702825: mosquitto version 2.1.2 starting
+1775702825: Config loaded from /mosquitto/config/mosquitto.conf.
+1775702825: Bridge support available.
+1775702825: Persistence support available.
+1775702825: TLS support available.
+1775702825: TLS-PSK support available.
+1775702825: Websockets support available.
+1775702825: Opening ipv4 listen socket on port 1883.
+1775702825: Opening ipv6 listen socket on port 1883.
+1775702825: mosquitto version 2.1.2 running
+1775702826: New connection from 172.18.0.4:44252 on port 1883.
+1775702826: New client connected from 172.18.0.4:44252 as Telegraf-Consumer-pBmf5 (p4, c1, k60).
+1775703531: New connection from 172.18.0.1:56822 on port 1883.
+1775703531: New client connected from 172.18.0.1:56822 as ESP32Client (p4, c1, k15).
+1775703803: New connection from 172.18.0.1:63620 on port 1883.
+1775703803: New client connected from 172.18.0.1:63620 as postman-mqtt-client-1775703803449 (p5, c1, k60).
+1775703834: Client postman-mqtt-client-1775703803449 [172.18.0.1:63620] disconnected: connection closed by client.
+1775703839: New connection from 172.18.0.1:57940 on port 1883.
+1775703839: New client connected from 172.18.0.1:57940 as postman-mqtt-client-1775703803449 (p5, c1, k60).
+1775703857: Client postman-mqtt-client-1775703803449 [172.18.0.1:57940] disconnected: connection closed by client.
+1775704626: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775706426: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775708181: Client ESP32Client [172.18.0.1:56822] disconnected: exceeded timeout.
+1775708186: New connection from 172.18.0.1:56472 on port 1883.
+1775708186: New client connected from 172.18.0.1:56472 as ESP32Client (p4, c1, k15).
+1775708228: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775708457: Client ESP32Client [172.18.0.1:56472] disconnected: connection closed by client.
+1775708462: New connection from 172.18.0.1:57654 on port 1883.
+1775708462: New client connected from 172.18.0.1:57654 as ESP32Client (p4, c1, k15).
+1775710028: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775710335: Client ESP32Client [172.18.0.1:57654] disconnected: exceeded timeout.
+1775710341: New connection from 172.18.0.1:62608 on port 1883.
+1775710341: New client connected from 172.18.0.1:62608 as ESP32Client (p4, c1, k15).
+1775711182: Client ESP32Client [172.18.0.1:62608] disconnected: exceeded timeout.
+1775711201: New connection from 172.18.0.1:55146 on port 1883.
+1775711201: New client connected from 172.18.0.1:55146 as ESP32Client (p4, c1, k15).
+1775711258: Client ESP32Client [172.18.0.1:55146] disconnected: exceeded timeout.
+1775711262: New connection from 172.18.0.1:55538 on port 1883.
+1775711264: New client connected from 172.18.0.1:55538 as ESP32Client (p4, c1, k15).
+1775711830: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775713631: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775714540: Client ESP32Client [172.18.0.1:55538] disconnected: exceeded timeout.
+1775715432: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775717232: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775719033: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775720834: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775722635: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775724436: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775725725: New connection from 172.18.0.1:61192 on port 1883.
+1775725725: New client connected from 172.18.0.1:61192 as ESP32Client (p4, c1, k15).
+1775725727: New connection from 172.18.0.1:60920 on port 1883.
+1775725727: Client ESP32Client [172.18.0.1:61192] disconnected: session taken over.
+1775725727: New client connected from 172.18.0.1:60920 as ESP32Client (p4, c1, k15).
+1775726237: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775726574: New connection from 172.18.0.1:60066 on port 1883.
+1775726574: New connection from 172.18.0.1:60076 on port 1883.
+1775726574: Protocol error from 172.18.0.1:60066: First packet not CONNECT (47).
+1775726574: Client 172.18.0.1 [172.18.0.1:60066] disconnected: protocol error.
+1775726575: Protocol error from 172.18.0.1:60076: First packet not CONNECT (47).
+1775726575: Client 172.18.0.1 [172.18.0.1:60076] disconnected: protocol error.
+1775726575: New connection from 172.18.0.1:60082 on port 1883.
+1775726575: Protocol error from 172.18.0.1:60082: First packet not CONNECT (47).
+1775726575: Client 172.18.0.1 [172.18.0.1:60082] disconnected: protocol error.
+1775726575: New connection from 172.18.0.1:60092 on port 1883.
+1775726575: Protocol error from 172.18.0.1:60092: First packet not CONNECT (47).
+1775726575: Client 172.18.0.1 [172.18.0.1:60092] disconnected: protocol error.
+1775727205: New connection from 172.18.0.1:55216 on port 1883.
+1775727205: Client ESP32Client [172.18.0.1:60920] disconnected: session taken over.
+1775727205: New client connected from 172.18.0.1:55216 as ESP32Client (p4, c1, k15).
+1775728038: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775729840: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775731640: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775733441: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775735051: Client ESP32Client [172.18.0.1:55216] disconnected: exceeded timeout.
+1775740256: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775794511: New connection from 172.18.0.1:63386 on port 1883.
+1775794511: New client connected from 172.18.0.1:63386 as ESP32Client (p4, c1, k15).
+1775798130: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775799311: Client Telegraf-Consumer-pBmf5 [172.18.0.4:44252] disconnected.
+1775799311: New connection from 172.18.0.4:50070 on port 1883.
+1775799311: New client connected from 172.18.0.4:50070 as Telegraf-Consumer-37X9D (p4, c1, k60).
+1775799480: New connection from 172.18.0.1:60142 on port 1883.
+1775799480: Client ESP32Client [172.18.0.1:63386] disconnected: session taken over.
+1775799480: New client connected from 172.18.0.1:60142 as ESP32Client (p4, c1, k15).
+1775799495: Client ESP32Client [172.18.0.1:60142] disconnected: connection closed by client.
+1775799634: New connection from 172.18.0.1:64208 on port 1883.
+1775799634: Client 172.18.0.1 [172.18.0.1:64208] disconnected: connection closed by client.
+1775799931: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775800427: New connection from 172.18.0.1:57084 on port 1883.
+1775800427: New client connected from 172.18.0.1:57084 as IESWIC3A-8856A67561D4 (p4, c1, k15).
+1775801732: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775803533: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775805334: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775807135: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775808936: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775810737: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775812537: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775813192: Client Telegraf-Consumer-37X9D [172.18.0.4:50070] disconnected.
+1775813192: mosquitto version 2.1.2 terminating
+1775813192: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775813199: mosquitto version 2.1.2 starting
+1775813199: Config loaded from /mosquitto/config/mosquitto.conf.
+1775813199: Bridge support available.
+1775813199: Persistence support available.
+1775813199: TLS support available.
+1775813199: TLS-PSK support available.
+1775813199: Websockets support available.
+1775813199: Opening ipv4 listen socket on port 1883.
+1775813199: Opening ipv6 listen socket on port 1883.
+1775813199: mosquitto version 2.1.2 running
+1775813200: New connection from 172.18.0.6:55532 on port 1883.
+1775813200: New client connected from 172.18.0.6:55532 as Telegraf-Consumer-NbRoB (p4, c1, k60).
+1775813215: New connection from 192.168.65.1:48761 on port 1883.
+1775813215: New client connected from 192.168.65.1:48761 as IESWIC3A-8856A67561D4 (p4, c1, k15).
+1775814999: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775815975: Client IESWIC3A-8856A67561D4 [192.168.65.1:48761] disconnected: exceeded timeout.
+1775815981: New connection from 192.168.65.1:35614 on port 1883.
+1775815981: New client connected from 192.168.65.1:35614 as IESWIC3A-8856A67561D4 (p4, c1, k15).
+1775816049: New connection from 192.168.65.1:49508 on port 1883.
+1775816049: New client connected from 192.168.65.1:49508 as IESWIC3A-8856A674F520 (p4, c1, k15).
+1775816801: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775892932: mosquitto version 2.1.2 starting
+1775892932: Config loaded from /mosquitto/config/mosquitto.conf.
+1775892932: Bridge support available.
+1775892932: Persistence support available.
+1775892932: TLS support available.
+1775892932: TLS-PSK support available.
+1775892932: Websockets support available.
+1775892932: Opening ipv4 listen socket on port 1883.
+1775892932: Opening ipv6 listen socket on port 1883.
+1775892932: mosquitto version 2.1.2 running
+1775892936: New connection from 172.19.0.1:36718 on port 1883.
+1775892936: New client connected from 172.19.0.1:36718 as mqttjs_27dbfb61 (p4, c1, k60).
+1775892940: New connection from 172.19.0.6:39274 on port 1883.
+1775892940: New client connected from 172.19.0.6:39274 as Telegraf-Consumer-7kbih (p4, c1, k60).
+1775892945: mosquitto version 2.1.2 terminating
+1775892945: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775892946: mosquitto version 2.1.2 starting
+1775892946: Config loaded from /mosquitto/config/mosquitto.conf.
+1775892946: Bridge support available.
+1775892946: Persistence support available.
+1775892946: TLS support available.
+1775892946: TLS-PSK support available.
+1775892946: Websockets support available.
+1775892946: Opening ipv4 listen socket on port 1883.
+1775892946: Opening ipv6 listen socket on port 1883.
+1775892946: mosquitto version 2.1.2 running
+1775892950: New connection from 172.19.0.6:55892 on port 1883.
+1775892950: New client connected from 172.19.0.6:55892 as Telegraf-Consumer-7kbih (p4, c1, k60).
+1775892951: New connection from 172.19.0.1:37246 on port 1883.
+1775892951: New client connected from 172.19.0.1:37246 as mqttjs_6da38178 (p4, c1, k60).
+1775892979: mosquitto version 2.1.2 terminating
+1775892979: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775892980: mosquitto version 2.1.2 starting
+1775892980: Config loaded from /mosquitto/config/mosquitto.conf.
+1775892980: Bridge support available.
+1775892980: Persistence support available.
+1775892980: TLS support available.
+1775892980: TLS-PSK support available.
+1775892980: Websockets support available.
+1775892980: Opening ipv4 listen socket on port 1883.
+1775892980: Opening ipv6 listen socket on port 1883.
+1775892980: mosquitto version 2.1.2 running
+1775892986: New connection from 172.19.0.1:42454 on port 1883.
+1775892986: New client connected from 172.19.0.1:42454 as mqttjs_72392d87 (p4, c1, k60).
+1775892990: New connection from 172.19.0.6:55914 on port 1883.
+1775892990: New client connected from 172.19.0.6:55914 as Telegraf-Consumer-7kbih (p4, c1, k60).
+1775893212: mosquitto version 2.1.2 terminating
+1775893212: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775893213: mosquitto version 2.1.2 starting
+1775893213: Config loaded from /mosquitto/config/mosquitto.conf.
+1775893213: Bridge support available.
+1775893213: Persistence support available.
+1775893213: TLS support available.
+1775893213: TLS-PSK support available.
+1775893213: Websockets support available.
+1775893213: Opening ipv4 listen socket on port 1883.
+1775893213: Opening ipv6 listen socket on port 1883.
+1775893213: mosquitto version 2.1.2 running
+1775893220: New connection from 172.19.0.6:60790 on port 1883.
+1775893220: New client connected from 172.19.0.6:60790 as Telegraf-Consumer-7kbih (p4, c1, k60).
+1775893221: New connection from 172.19.0.1:33544 on port 1883.
+1775893221: New client connected from 172.19.0.1:33544 as mqttjs_269331d2 (p4, c1, k60).
+1775893231: mosquitto version 2.1.2 terminating
+1775893231: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775893232: mosquitto version 2.1.2 starting
+1775893232: Config loaded from /mosquitto/config/mosquitto.conf.
+1775893232: Bridge support available.
+1775893232: Persistence support available.
+1775893232: TLS support available.
+1775893232: TLS-PSK support available.
+1775893232: Websockets support available.
+1775893232: Opening ipv4 listen socket on port 1883.
+1775893232: Opening ipv6 listen socket on port 1883.
+1775893232: mosquitto version 2.1.2 running
+1775893236: New connection from 172.19.0.1:45476 on port 1883.
+1775893236: New client connected from 172.19.0.1:45476 as mqttjs_7d2e7b82 (p4, c1, k60).
+1775893240: New connection from 172.19.0.6:38286 on port 1883.
+1775893240: New client connected from 172.19.0.6:38286 as Telegraf-Consumer-7kbih (p4, c1, k60).
+1775893424: Client Telegraf-Consumer-7kbih [172.19.0.6:38286] disconnected.
+1775893425: mosquitto version 2.1.2 terminating
+1775893425: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775893428: mosquitto version 2.1.2 starting
+1775893428: Config loaded from /mosquitto/config/mosquitto.conf.
+1775893428: Bridge support available.
+1775893428: Persistence support available.
+1775893428: TLS support available.
+1775893428: TLS-PSK support available.
+1775893428: Websockets support available.
+1775893428: Opening ipv4 listen socket on port 1883.
+1775893428: Opening ipv6 listen socket on port 1883.
+1775893428: mosquitto version 2.1.2 running
+1775893431: New connection from 172.20.0.1:38736 on port 1883.
+1775893431: New client connected from 172.20.0.1:38736 as mqttjs_7dfe2a7d (p4, c1, k60).
+1775893433: New connection from 172.20.0.5:42888 on port 1883.
+1775893433: New client connected from 172.20.0.5:42888 as Telegraf-Consumer-ag7qg (p4, c1, k60).
+1775893794: New connection from 192.168.0.240:53277 on port 1883.
+1775893794: Client 192.168.0.240 [192.168.0.240:53277] disconnected: connection closed by client.
+1775893899: New connection from 192.168.0.182:59741 on port 1883.
+1775893899: New client connected from 192.168.0.182:59741 as IESWIC3A-8856A67561D4 (p4, c1, k15).
+1775895229: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775896011: Client IESWIC3A-8856A67561D4 [192.168.0.182:59741] disconnected: exceeded timeout.
+1775896022: New connection from 192.168.0.182:59813 on port 1883.
+1775896022: New client connected from 192.168.0.182:59813 as IESWIC3A-8856A67561D4 (p4, c1, k15).
+1775896072: Client IESWIC3A-8856A67561D4 [192.168.0.182:59813] disconnected: exceeded timeout.
+1775896079: New connection from 192.168.0.182:59816 on port 1883.
+1775896079: New client connected from 192.168.0.182:59816 as IESWIC3A-8856A67561D4 (p4, c1, k15).
+1775896144: Client IESWIC3A-8856A67561D4 [192.168.0.182:59816] disconnected: exceeded timeout.
+1775896149: New connection from 192.168.0.182:59820 on port 1883.
+1775896149: New client connected from 192.168.0.182:59820 as IESWIC3A-8856A67561D4 (p4, c1, k15).
+1775896226: New connection from 192.168.0.182:59822 on port 1883.
+1775896227: Client IESWIC3A-8856A67561D4 [192.168.0.182:59820] disconnected: exceeded timeout.
+1775896229: New client connected from 192.168.0.182:59822 as IESWIC3A-8856A67561D4 (p4, c1, k15).
+1775896376: New connection from 192.168.0.154:55645 on port 1883.
+1775896376: New client connected from 192.168.0.154:55645 as IESWIC3A-8856A674FCE0 (p4, c1, k15).
+1775896395: Client IESWIC3A-8856A67561D4 [192.168.0.182:59822] disconnected: exceeded timeout.
+1775896398: New connection from 192.168.0.182:63352 on port 1883.
+1775896398: New client connected from 192.168.0.182:63352 as IESWIC3A-8856A67561D4 (p4, c1, k15).
+1775896443: New connection from 192.168.0.165:50392 on port 1883.
+1775896443: New client connected from 192.168.0.165:50392 as IESWIC3A-8856A674F520 (p4, c1, k15).
+1775896477: New connection from 192.168.0.165:57648 on port 1883.
+1775896477: Client IESWIC3A-8856A674F520 [192.168.0.165:50392] disconnected: session taken over.
+1775896477: New client connected from 192.168.0.165:57648 as IESWIC3A-8856A674F520 (p4, c1, k15).
+1775897030: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775898831: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775900632: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775902433: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775904234: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775904463: Client IESWIC3A-8856A67561D4 [192.168.0.182:63352] disconnected: exceeded timeout.
+1775963654: mosquitto version 2.1.2 starting
+1775963654: Config loaded from /mosquitto/config/mosquitto.conf.
+1775963654: Bridge support available.
+1775963654: Persistence support available.
+1775963654: TLS support available.
+1775963654: TLS-PSK support available.
+1775963654: Websockets support available.
+1775963654: Opening ipv4 listen socket on port 1883.
+1775963654: Opening ipv6 listen socket on port 1883.
+1775963654: mosquitto version 2.1.2 running
+1775963655: New connection from 172.20.0.1:41810 on port 1883.
+1775963655: New client connected from 172.20.0.1:41810 as mqttjs_98d02d3c (p4, c1, k60).
+1775963658: New connection from 192.168.0.154:52262 on port 1883.
+1775963658: New client connected from 192.168.0.154:52262 as IESWIC3A-8856A674FCE0 (p4, c1, k15).
+1775963660: New connection from 172.20.0.4:56068 on port 1883.
+1775963660: New client connected from 172.20.0.4:56068 as Telegraf-Consumer-DWre4 (p4, c1, k60).
+1775963961: mosquitto version 2.1.2 starting
+1775963961: Config loaded from /mosquitto/config/mosquitto.conf.
+1775963961: Bridge support available.
+1775963961: Persistence support available.
+1775963961: TLS support available.
+1775963961: TLS-PSK support available.
+1775963961: Websockets support available.
+1775963961: Opening ipv4 listen socket on port 1883.
+1775963961: Opening ipv6 listen socket on port 1883.
+1775963961: mosquitto version 2.1.2 running
+1775963963: New connection from 192.168.0.154:52291 on port 1883.
+1775963963: New client connected from 192.168.0.154:52291 as IESWIC3A-8856A674FCE0 (p4, c1, k15).
+1775963963: New connection from 172.20.0.1:49604 on port 1883.
+1775963963: New client connected from 172.20.0.1:49604 as mqttjs_4bc0fce0 (p4, c1, k60).
+1775963967: New connection from 172.20.0.3:42560 on port 1883.
+1775963967: New client connected from 172.20.0.3:42560 as Telegraf-Consumer-uW8Af (p4, c1, k60).
+1775964103: New connection from 192.168.0.182:64159 on port 1883.
+1775964103: New client connected from 192.168.0.182:64159 as IESWIC3A-8856A67561D4 (p4, c1, k15).
+1775964116: New connection from 192.168.0.165:54600 on port 1883.
+1775964116: New client connected from 192.168.0.165:54600 as IESWIC3A-8856A674F520 (p4, c1, k15).
+1775965762: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775967563: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775969364: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775971165: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775972966: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775974767: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775976568: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775978369: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775980170: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775981971: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775983772: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775985573: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775987374: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775988992: Client IESWIC3A-8856A674F520 [192.168.0.165:54600] disconnected: exceeded timeout.
+1775988998: Client IESWIC3A-8856A67561D4 [192.168.0.182:64159] disconnected: exceeded timeout.
+1775989175: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775990976: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775992777: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1775994578: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776236869: mosquitto version 2.1.2 starting
+1776236869: Config loaded from /mosquitto/config/mosquitto.conf.
+1776236869: Bridge support available.
+1776236869: Persistence support available.
+1776236869: TLS support available.
+1776236869: TLS-PSK support available.
+1776236869: Websockets support available.
+1776236869: Opening ipv4 listen socket on port 1883.
+1776236869: Opening ipv6 listen socket on port 1883.
+1776236869: mosquitto version 2.1.2 running
+1776236870: New connection from 172.20.0.1:58950 on port 1883.
+1776236870: New client connected from 172.20.0.1:58950 as mqttjs_a3b7049d (p4, c1, k60).
+1776236871: New connection from 192.168.0.154:58988 on port 1883.
+1776236871: New client connected from 192.168.0.154:58988 as IESWIC3A-8856A674FCE0 (p4, c1, k15).
+1776236878: New connection from 172.20.0.6:47532 on port 1883.
+1776236878: New client connected from 172.20.0.6:47532 as Telegraf-Consumer-KIsof (p4, c1, k60).
+1776310371: mosquitto version 2.1.2 starting
+1776310371: Config loaded from /mosquitto/config/mosquitto.conf.
+1776310371: Bridge support available.
+1776310371: Persistence support available.
+1776310371: TLS support available.
+1776310371: TLS-PSK support available.
+1776310371: Websockets support available.
+1776310371: Opening ipv4 listen socket on port 1883.
+1776310371: Opening ipv6 listen socket on port 1883.
+1776310371: mosquitto version 2.1.2 running
+1776310372: New connection from 172.20.0.1:60742 on port 1883.
+1776310372: New client connected from 172.20.0.1:60742 as mqttjs_6a16709e (p4, c1, k60).
+1776310375: New connection from 192.168.0.165:64239 on port 1883.
+1776310375: New client connected from 192.168.0.165:64239 as IESWIC3A-8856A674F520 (p4, c1, k15).
+1776310377: New connection from 172.20.0.3:35568 on port 1883.
+1776310377: New client connected from 172.20.0.3:35568 as Telegraf-Consumer-1tu6v (p4, c1, k60).
+1776310380: New connection from 192.168.0.154:51848 on port 1883.
+1776310380: New client connected from 192.168.0.154:51848 as IESWIC3A-8856A674FCE0 (p4, c1, k15).
+1776310402: Client IESWIC3A-8856A674F520 [192.168.0.165:64239] disconnected: exceeded timeout.
+1776310418: New connection from 192.168.0.165:59371 on port 1883.
+1776310418: New client connected from 192.168.0.165:59371 as IESWIC3A-8856A674F520 (p4, c1, k15).
+1776310423: Client IESWIC3A-8856A674FCE0 [192.168.0.154:51848] disconnected: exceeded timeout.
+1776310424: New connection from 192.168.0.154:49195 on port 1883.
+1776310424: New client connected from 192.168.0.154:49195 as IESWIC3A-8856A674FCE0 (p4, c1, k15).
+1776310450: New connection from 192.168.0.182:65262 on port 1883.
+1776310450: New client connected from 192.168.0.182:65262 as IESWIC3A-8856A67561D4 (p4, c1, k15).
+1776310596: Client IESWIC3A-8856A674F520 [192.168.0.165:59371] disconnected: exceeded timeout.
+1776311044: mosquitto version 2.1.2 starting
+1776311044: Config loaded from /mosquitto/config/mosquitto.conf.
+1776311044: Bridge support available.
+1776311044: Persistence support available.
+1776311044: TLS support available.
+1776311044: TLS-PSK support available.
+1776311044: Websockets support available.
+1776311044: Opening ipv4 listen socket on port 1883.
+1776311044: Opening ipv6 listen socket on port 1883.
+1776311044: mosquitto version 2.1.2 running
+1776311045: New connection from 172.20.0.1:39656 on port 1883.
+1776311045: New client connected from 172.20.0.1:39656 as mqttjs_a70a4b7a (p4, c1, k60).
+1776311046: New connection from 192.168.0.154:50019 on port 1883.
+1776311046: New client connected from 192.168.0.154:50019 as IESWIC3A-8856A674FCE0 (p4, c1, k15).
+1776311048: New connection from 192.168.0.182:54930 on port 1883.
+1776311048: New client connected from 192.168.0.182:54930 as IESWIC3A-8856A67561D4 (p4, c1, k15).
+1776311049: New connection from 192.168.0.165:62834 on port 1883.
+1776311049: New client connected from 192.168.0.165:62834 as IESWIC3A-8856A674F520 (p4, c1, k15).
+1776311050: New connection from 172.20.0.5:46702 on port 1883.
+1776311050: New client connected from 172.20.0.5:46702 as Telegraf-Consumer-tOklq (p4, c1, k60).
+1776312845: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776314646: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776315517: Client IESWIC3A-8856A674F520 [192.168.0.165:62834] disconnected: exceeded timeout.
+1776315520: New connection from 192.168.0.165:62986 on port 1883.
+1776315520: New client connected from 192.168.0.165:62986 as IESWIC3A-8856A674F520 (p4, c1, k15).
+1776316447: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776318248: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776320049: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776321094: Client IESWIC3A-8856A674FCE0 [192.168.0.154:50019] disconnected: exceeded timeout.
+1776321163: New connection from 192.168.0.154:50918 on port 1883.
+1776321163: New client connected from 192.168.0.154:50918 as IESWIC3A-8856A674FCE0 (p4, c1, k15).
+1776321250: Client IESWIC3A-8856A674FCE0 [192.168.0.154:50918] disconnected: exceeded timeout.
+1776321276: New connection from 192.168.0.154:50937 on port 1883.
+1776321307: Client 192.168.0.154 [192.168.0.154:50937] disconnected: exceeded timeout.
+1776321311: New connection from 192.168.0.154:50940 on port 1883.
+1776321341: Client 192.168.0.154 [192.168.0.154:50940] disconnected: exceeded timeout.
+1776321350: New connection from 192.168.0.154:50948 on port 1883.
+1776321353: New client connected from 192.168.0.154:50948 as IESWIC3A-8856A674FCE0 (p4, c1, k15).
+1776321376: Client IESWIC3A-8856A674FCE0 [192.168.0.154:50948] disconnected: exceeded timeout.
+1776321671: New connection from 192.168.0.154:51003 on port 1883.
+1776321671: New client connected from 192.168.0.154:51003 as IESWIC3A-8856A674FCE0 (p4, c1, k15).
+1776321850: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776323651: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776324507: New connection from 192.168.0.50:65230 on port 1883.
+1776324507: New client connected from 192.168.0.50:65230 as IESWIC3A-8856A674D970 (p4, c1, k15).
+1776324595: Client IESWIC3A-8856A674D970 [192.168.0.50:65230] disconnected: exceeded timeout.
+1776325101: New connection from 192.168.0.218:51394 on port 1883.
+1776325101: New client connected from 192.168.0.218:51394 as IESWIC3A-8856A675C5A0 (p4, c1, k15).
+1776325452: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776325891: Client IESWIC3A-8856A675C5A0 [192.168.0.218:51394] disconnected: connection closed by client.
+1776325891: New connection from 192.168.0.218:51560 on port 1883.
+1776325892: New client connected from 192.168.0.218:51560 as IESWIC3A-8856A675C5A0 (p4, c1, k15).
+1776326265: Client IESWIC3A-8856A67561D4 [192.168.0.182:54930] disconnected: exceeded timeout.
+1776326266: New connection from 192.168.0.182:56950 on port 1883.
+1776326266: New client connected from 192.168.0.182:56950 as IESWIC3A-8856A67561D4 (p4, c1, k15).
+1776326314: Client IESWIC3A-8856A674FCE0 [192.168.0.154:51003] disconnected: connection closed by client.
+1776326314: New connection from 192.168.0.154:52028 on port 1883.
+1776326314: New client connected from 192.168.0.154:52028 as IESWIC3A-8856A674FCE0 (p4, c1, k15).
+1776326354: New connection from 192.168.0.218:53537 on port 1883.
+1776326354: Client IESWIC3A-8856A675C5A0 [192.168.0.218:51560] disconnected: session taken over.
+1776326354: New client connected from 192.168.0.218:53537 as IESWIC3A-8856A675C5A0 (p4, c1, k15).
+1776326402: Client IESWIC3A-8856A675C5A0 [192.168.0.218:53537] disconnected: exceeded timeout.
+1776326410: New connection from 192.168.0.218:58956 on port 1883.
+1776326411: New client connected from 192.168.0.218:58956 as IESWIC3A-8856A675C5A0 (p4, c1, k15).
+1776326439: Client IESWIC3A-8856A675C5A0 [192.168.0.218:58956] disconnected: exceeded timeout.
+1776326453: New connection from 192.168.0.218:53607 on port 1883.
+1776326453: New client connected from 192.168.0.218:53607 as IESWIC3A-8856A675C5A0 (p4, c1, k15).
+1776326490: Client IESWIC3A-8856A675C5A0 [192.168.0.218:53607] disconnected: connection closed by client.
+1776326494: Client IESWIC3A-8856A674FCE0 [192.168.0.154:52028] disconnected: connection closed by client.
+1776326499: New connection from 192.168.0.154:52068 on port 1883.
+1776326499: New client connected from 192.168.0.154:52068 as IESWIC3A-8856A674FCE0 (p4, c1, k15).
+1776326504: New connection from 192.168.0.218:53618 on port 1883.
+1776326506: New client connected from 192.168.0.218:53618 as IESWIC3A-8856A675C5A0 (p4, c1, k15).
+1776326543: Client IESWIC3A-8856A675C5A0 [192.168.0.218:53618] disconnected: connection closed by client.
+1776326544: New connection from 192.168.0.218:53625 on port 1883.
+1776326544: New client connected from 192.168.0.218:53625 as IESWIC3A-8856A675C5A0 (p4, c1, k15).
+1776326566: Client IESWIC3A-8856A675C5A0 [192.168.0.218:53625] disconnected: exceeded timeout.
+1776326572: New connection from 192.168.0.218:53628 on port 1883.
+1776326573: New client connected from 192.168.0.218:53628 as IESWIC3A-8856A675C5A0 (p4, c1, k15).
+1776326595: Client IESWIC3A-8856A675C5A0 [192.168.0.218:53628] disconnected: exceeded timeout.
+1776326872: New connection from 192.168.0.218:60053 on port 1883.
+1776326872: New client connected from 192.168.0.218:60053 as IESWIC3A-8856A675C5A0 (p4, c1, k15).
+1776327253: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776327767: Client IESWIC3A-8856A67561D4 [192.168.0.182:56950] disconnected: exceeded timeout.
+1776327767: Client IESWIC3A-8856A674F520 [192.168.0.165:62986] disconnected: exceeded timeout.
+1776327778: Client IESWIC3A-8856A675C5A0 [192.168.0.218:60053] disconnected: exceeded timeout.
+1776327822: Client IESWIC3A-8856A674FCE0 [192.168.0.154:52068] disconnected: exceeded timeout.
+1776329054: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776329294: New connection from 192.168.0.50:61651 on port 1883.
+1776329294: New client connected from 192.168.0.50:61651 as IESWIC3A-8856A674D970 (p4, c1, k15).
+1776329317: Client IESWIC3A-8856A674D970 [192.168.0.50:61651] disconnected: exceeded timeout.
+1776392166: mosquitto version 2.1.2 starting
+1776392166: Config loaded from /mosquitto/config/mosquitto.conf.
+1776392166: Bridge support available.
+1776392166: Persistence support available.
+1776392166: TLS support available.
+1776392166: TLS-PSK support available.
+1776392166: Websockets support available.
+1776392166: Opening ipv4 listen socket on port 1883.
+1776392166: Opening ipv6 listen socket on port 1883.
+1776392166: mosquitto version 2.1.2 running
+1776392167: New connection from 172.20.0.1:46204 on port 1883.
+1776392167: New client connected from 172.20.0.1:46204 as mqttjs_91d499fa (p4, c1, k60).
+1776392172: New connection from 172.20.0.2:51498 on port 1883.
+1776392172: New client connected from 172.20.0.2:51498 as Telegraf-Consumer-BspNX (p4, c1, k60).
+1776392183: New connection from 192.168.0.154:49240 on port 1883.
+1776392183: New client connected from 192.168.0.154:49240 as IESWIC3A-8856A674FCE0 (p4, c1, k15).
+1776392198: New connection from 192.168.0.165:56759 on port 1883.
+1776392198: New client connected from 192.168.0.165:56759 as IESWIC3A-8856A674F520 (p4, c1, k15).
+1776392209: New connection from 192.168.0.182:59192 on port 1883.
+1776392209: New client connected from 192.168.0.182:59192 as IESWIC3A-8856A67561D4 (p4, c1, k15).
+1776392244: New connection from 192.168.0.218:50677 on port 1883.
+1776392244: New client connected from 192.168.0.218:50677 as IESWIC3A-8856A675C5A0 (p4, c1, k15).
+1776393965: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776395766: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776397567: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776399368: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776401169: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776401427: Client IESWIC3A-8856A674F520 [192.168.0.165:56759] disconnected: exceeded timeout.
+1776402380: New connection from 192.168.0.165:59003 on port 1883.
+1776402380: New client connected from 192.168.0.165:59003 as IESWIC3A-8856A674F520 (p4, c1, k15).
+1776402970: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776404771: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776405184: New connection from 192.168.0.165:59643 on port 1883.
+1776405184: Client IESWIC3A-8856A674F520 [192.168.0.165:59003] disconnected: session taken over.
+1776405184: New client connected from 192.168.0.165:59643 as IESWIC3A-8856A674F520 (p4, c1, k15).
+1776405184: New connection from 192.168.0.182:62162 on port 1883.
+1776405184: Client IESWIC3A-8856A67561D4 [192.168.0.182:59192] disconnected: session taken over.
+1776405184: New client connected from 192.168.0.182:62162 as IESWIC3A-8856A67561D4 (p4, c1, k15).
+1776405185: Client IESWIC3A-8856A674FCE0 [192.168.0.154:49240] disconnected: exceeded timeout.
+1776405185: New connection from 192.168.0.154:52219 on port 1883.
+1776405185: New client connected from 192.168.0.154:52219 as IESWIC3A-8856A674FCE0 (p4, c1, k15).
+1776405187: New connection from 192.168.0.218:53646 on port 1883.
+1776405187: Client IESWIC3A-8856A675C5A0 [192.168.0.218:50677] disconnected: exceeded timeout.
+1776405187: New client connected from 192.168.0.218:53646 as IESWIC3A-8856A675C5A0 (p4, c1, k15).
+1776406217: New connection from 192.168.0.154:62494 on port 1883.
+1776406217: Client IESWIC3A-8856A674FCE0 [192.168.0.154:52219] disconnected: session taken over.
+1776406217: New client connected from 192.168.0.154:62494 as IESWIC3A-8856A674FCE0 (p4, c1, k15).
+1776406271: Client IESWIC3A-8856A674FCE0 [192.168.0.154:62494] disconnected: exceeded timeout.
+1776406542: New connection from 192.168.0.154:50830 on port 1883.
+1776406542: New client connected from 192.168.0.154:50830 as IESWIC3A-8856A674FCE0 (p4, c1, k15).
+1776406572: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776406720: New connection from 192.168.0.154:56899 on port 1883.
+1776406720: Client IESWIC3A-8856A674FCE0 [192.168.0.154:50830] disconnected: session taken over.
+1776406720: New client connected from 192.168.0.154:56899 as IESWIC3A-8856A674FCE0 (p4, c1, k15).
+1776406737: Client IESWIC3A-8856A675C5A0 [192.168.0.218:53646] disconnected: exceeded timeout.
+1776406755: New connection from 192.168.0.218:64645 on port 1883.
+1776406755: New client connected from 192.168.0.218:64645 as IESWIC3A-8856A675C5A0 (p4, c1, k15).
+1776406774: Client IESWIC3A-8856A674F520 [192.168.0.165:59643] disconnected: exceeded timeout.
+1776406791: New connection from 192.168.0.165:53392 on port 1883.
+1776406791: New client connected from 192.168.0.165:53392 as IESWIC3A-8856A674F520 (p4, c1, k15).
+1776406808: Client IESWIC3A-8856A67561D4 [192.168.0.182:62162] disconnected: exceeded timeout.
+1776406825: New connection from 192.168.0.182:58839 on port 1883.
+1776406825: New client connected from 192.168.0.182:58839 as IESWIC3A-8856A67561D4 (p4, c1, k15).
+1776406848: Client IESWIC3A-8856A674FCE0 [192.168.0.154:56899] disconnected: exceeded timeout.
+1776408202: New connection from 192.168.0.154:57053 on port 1883.
+1776408202: New client connected from 192.168.0.154:57053 as IESWIC3A-8856A674FCE0 (p4, c1, k15).
+1776408213: New connection from 192.168.0.154:55158 on port 1883.
+1776408214: Client IESWIC3A-8856A674FCE0 [192.168.0.154:57053] disconnected: session taken over.
+1776408214: New client connected from 192.168.0.154:55158 as IESWIC3A-8856A674FCE0 (p4, c1, k15).
+1776408373: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776410174: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776411975: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776413671: New connection from 192.168.0.182:60388 on port 1883.
+1776413671: Client IESWIC3A-8856A67561D4 [192.168.0.182:58839] disconnected: session taken over.
+1776413671: New client connected from 192.168.0.182:60388 as IESWIC3A-8856A67561D4 (p4, c1, k15).
+1776413673: New connection from 192.168.0.218:49835 on port 1883.
+1776413673: Client IESWIC3A-8856A675C5A0 [192.168.0.218:64645] disconnected: session taken over.
+1776413673: New client connected from 192.168.0.218:49835 as IESWIC3A-8856A675C5A0 (p4, c1, k15).
+1776413673: Client IESWIC3A-8856A674FCE0 [192.168.0.154:55158] disconnected: exceeded timeout.
+1776413675: New connection from 192.168.0.165:54963 on port 1883.
+1776413675: Client IESWIC3A-8856A674F520 [192.168.0.165:53392] disconnected: session taken over.
+1776413675: New client connected from 192.168.0.165:54963 as IESWIC3A-8856A674F520 (p4, c1, k15).
+1776413677: New connection from 192.168.0.154:56393 on port 1883.
+1776413677: New client connected from 192.168.0.154:56393 as IESWIC3A-8856A674FCE0 (p4, c1, k15).
+1776413776: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776415577: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776416768: Client IESWIC3A-8856A674F520 [192.168.0.165:54963] disconnected: exceeded timeout.
+1776417048: New connection from 192.168.0.165:55679 on port 1883.
+1776417048: New client connected from 192.168.0.165:55679 as IESWIC3A-8856A674F520 (p4, c1, k15).
+1776417127: Client IESWIC3A-8856A674F520 [192.168.0.165:55679] disconnected: connection closed by client.
+1776417127: New connection from 192.168.0.165:55690 on port 1883.
+1776417127: New client connected from 192.168.0.165:55690 as IESWIC3A-8856A674F520 (p4, c1, k15).
+1776417149: Client IESWIC3A-8856A674F520 [192.168.0.165:55690] disconnected: exceeded timeout.
+1776417152: New connection from 192.168.0.165:55695 on port 1883.
+1776417152: New client connected from 192.168.0.165:55695 as IESWIC3A-8856A674F520 (p4, c1, k15).
+1776417175: Client IESWIC3A-8856A674F520 [192.168.0.165:55695] disconnected: exceeded timeout.
+1776417189: New connection from 192.168.0.165:55701 on port 1883.
+1776417189: New client connected from 192.168.0.165:55701 as IESWIC3A-8856A674F520 (p4, c1, k15).
+1776417217: Client IESWIC3A-8856A674F520 [192.168.0.165:55701] disconnected: exceeded timeout.
+1776417226: New connection from 192.168.0.165:55708 on port 1883.
+1776417239: New client connected from 192.168.0.165:55708 as IESWIC3A-8856A674F520 (p4, c1, k15).
+1776417239: Client IESWIC3A-8856A674F520 [192.168.0.165:55708] disconnected: connection closed by client.
+1776417240: New connection from 192.168.0.165:55710 on port 1883.
+1776417240: New client connected from 192.168.0.165:55710 as IESWIC3A-8856A674F520 (p4, c1, k15).
+1776417378: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776419179: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776420980: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776422781: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776424582: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776426383: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776428184: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776429985: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776431786: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776433587: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776435388: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776437189: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776438990: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776440791: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776442592: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776444393: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776446194: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776447995: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776449796: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776451597: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776453398: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776455199: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776457000: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776458801: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776460602: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776462403: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776464204: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776466005: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776467806: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776469405: New connection from 192.168.0.154:52481 on port 1883.
+1776469405: Client IESWIC3A-8856A674FCE0 [192.168.0.154:56393] disconnected: session taken over.
+1776469405: New client connected from 192.168.0.154:52481 as IESWIC3A-8856A674FCE0 (p4, c1, k15).
+1776469406: Client IESWIC3A-8856A67561D4 [192.168.0.182:60388] disconnected: exceeded timeout.
+1776469409: New connection from 192.168.0.182:56539 on port 1883.
+1776469409: New client connected from 192.168.0.182:56539 as IESWIC3A-8856A67561D4 (p4, c1, k15).
+1776469411: Client IESWIC3A-8856A675C5A0 [192.168.0.218:49835] disconnected: exceeded timeout.
+1776469411: Client IESWIC3A-8856A674F520 [192.168.0.165:55710] disconnected: exceeded timeout.
+1776469411: New connection from 192.168.0.218:62325 on port 1883.
+1776469411: New connection from 192.168.0.165:51046 on port 1883.
+1776469411: New client connected from 192.168.0.218:62325 as IESWIC3A-8856A675C5A0 (p4, c1, k15).
+1776469411: New client connected from 192.168.0.165:51046 as IESWIC3A-8856A674F520 (p4, c1, k15).
+1776469607: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776471408: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776473209: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776475010: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776476811: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776478612: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776480298: Client IESWIC3A-8856A674FCE0 [192.168.0.154:52481] disconnected: exceeded timeout.
+1776480299: New connection from 192.168.0.154:54949 on port 1883.
+1776480299: New client connected from 192.168.0.154:54949 as IESWIC3A-8856A674FCE0 (p4, c1, k15).
+1776480357: Client IESWIC3A-8856A674FCE0 [192.168.0.154:54949] disconnected: exceeded timeout.
+1776480361: New connection from 192.168.0.154:54962 on port 1883.
+1776480361: New client connected from 192.168.0.154:54962 as IESWIC3A-8856A674FCE0 (p4, c1, k15).
+1776480413: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776480434: New connection from 192.168.0.154:54978 on port 1883.
+1776480434: Client IESWIC3A-8856A674FCE0 [192.168.0.154:54962] disconnected: session taken over.
+1776480434: New client connected from 192.168.0.154:54978 as IESWIC3A-8856A674FCE0 (p4, c1, k15).
+1776480508: Client IESWIC3A-8856A674FCE0 [192.168.0.154:54978] disconnected: exceeded timeout.
+1776480516: New connection from 192.168.0.154:54992 on port 1883.
+1776480519: New client connected from 192.168.0.154:54992 as IESWIC3A-8856A674FCE0 (p4, c1, k15).
+1776480557: Client IESWIC3A-8856A674FCE0 [192.168.0.154:54992] disconnected: exceeded timeout.
+1776480559: New connection from 192.168.0.154:55002 on port 1883.
+1776480559: New client connected from 192.168.0.154:55002 as IESWIC3A-8856A674FCE0 (p4, c1, k15).
+1776480593: New connection from 192.168.0.154:55008 on port 1883.
+1776480593: Client IESWIC3A-8856A674FCE0 [192.168.0.154:55002] disconnected: session taken over.
+1776480593: New client connected from 192.168.0.154:55008 as IESWIC3A-8856A674FCE0 (p4, c1, k15).
+1776480630: Client IESWIC3A-8856A674FCE0 [192.168.0.154:55008] disconnected: exceeded timeout.
+1776480631: New connection from 192.168.0.154:55016 on port 1883.
+1776480631: New client connected from 192.168.0.154:55016 as IESWIC3A-8856A674FCE0 (p4, c1, k15).
+1776480663: Client IESWIC3A-8856A674FCE0 [192.168.0.154:55016] disconnected: connection closed by client.
+1776480663: New connection from 192.168.0.154:55021 on port 1883.
+1776480663: New client connected from 192.168.0.154:55021 as IESWIC3A-8856A674FCE0 (p4, c1, k15).
+1776480711: Client IESWIC3A-8856A674FCE0 [192.168.0.154:55021] disconnected: exceeded timeout.
+1776480750: New connection from 192.168.0.154:55037 on port 1883.
+1776480753: New client connected from 192.168.0.154:55037 as IESWIC3A-8856A674FCE0 (p4, c1, k15).
+1776480775: Client IESWIC3A-8856A674FCE0 [192.168.0.154:55037] disconnected: exceeded timeout.
+1776480779: New connection from 192.168.0.154:55041 on port 1883.
+1776480779: New client connected from 192.168.0.154:55041 as IESWIC3A-8856A674FCE0 (p4, c1, k15).
+1776480828: Client IESWIC3A-8856A674FCE0 [192.168.0.154:55041] disconnected: exceeded timeout.
+1776480863: New connection from 192.168.0.154:55055 on port 1883.
+1776480863: New client connected from 192.168.0.154:55055 as IESWIC3A-8856A674FCE0 (p4, c1, k15).
+1776480885: Client IESWIC3A-8856A674FCE0 [192.168.0.154:55055] disconnected: exceeded timeout.
+1776480894: New connection from 192.168.0.154:55062 on port 1883.
+1776480895: New client connected from 192.168.0.154:55062 as IESWIC3A-8856A674FCE0 (p4, c1, k15).
+1776480945: Client IESWIC3A-8856A674FCE0 [192.168.0.154:55062] disconnected: exceeded timeout.
+1776480965: New connection from 192.168.0.154:55076 on port 1883.
+1776480965: New client connected from 192.168.0.154:55076 as IESWIC3A-8856A674FCE0 (p4, c1, k15).
+1776480987: Client IESWIC3A-8856A674FCE0 [192.168.0.154:55076] disconnected: exceeded timeout.
+1776480997: New connection from 192.168.0.154:55081 on port 1883.
+1776481006: New client connected from 192.168.0.154:55081 as IESWIC3A-8856A674FCE0 (p4, c1, k15).
+1776481184: Client IESWIC3A-8856A674FCE0 [192.168.0.154:55081] disconnected: exceeded timeout.
+1776481185: New connection from 192.168.0.154:55118 on port 1883.
+1776481185: New client connected from 192.168.0.154:55118 as IESWIC3A-8856A674FCE0 (p4, c1, k15).
+1776481274: Client IESWIC3A-8856A674FCE0 [192.168.0.154:55118] disconnected: exceeded timeout.
+1776481290: New connection from 192.168.0.154:55138 on port 1883.
+1776481290: New client connected from 192.168.0.154:55138 as IESWIC3A-8856A674FCE0 (p4, c1, k15).
+1776481312: Client IESWIC3A-8856A674FCE0 [192.168.0.154:55138] disconnected: exceeded timeout.
+1776481316: New connection from 192.168.0.154:55144 on port 1883.
+1776481316: New client connected from 192.168.0.154:55144 as IESWIC3A-8856A674FCE0 (p4, c1, k15).
+1776481338: Client IESWIC3A-8856A674FCE0 [192.168.0.154:55144] disconnected: exceeded timeout.
+1776481352: New connection from 192.168.0.154:55148 on port 1883.
+1776481360: New client connected from 192.168.0.154:55148 as IESWIC3A-8856A674FCE0 (p4, c1, k15).
+1776482214: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776483867: Client IESWIC3A-8856A674FCE0 [192.168.0.154:55148] disconnected: connection closed by client.
+1776483867: New connection from 192.168.0.154:55689 on port 1883.
+1776483867: New client connected from 192.168.0.154:55689 as IESWIC3A-8856A674FCE0 (p4, c1, k15).
+1776484015: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776485816: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776486709: New connection from 192.168.0.182:60494 on port 1883.
+1776486709: Client IESWIC3A-8856A67561D4 [192.168.0.182:56539] disconnected: session taken over.
+1776486709: New client connected from 192.168.0.182:60494 as IESWIC3A-8856A67561D4 (p4, c1, k15).
+1776486736: New connection from 192.168.0.182:55269 on port 1883.
+1776486736: Client IESWIC3A-8856A67561D4 [192.168.0.182:60494] disconnected: session taken over.
+1776486736: New client connected from 192.168.0.182:55269 as IESWIC3A-8856A67561D4 (p4, c1, k15).
+1776486748: New connection from 192.168.0.182:55281 on port 1883.
+1776486748: Client IESWIC3A-8856A67561D4 [192.168.0.182:55269] disconnected: session taken over.
+1776486748: New client connected from 192.168.0.182:55281 as IESWIC3A-8856A67561D4 (p4, c1, k15).
+1776487433: New connection from 192.168.0.182:63124 on port 1883.
+1776487433: Client IESWIC3A-8856A67561D4 [192.168.0.182:55281] disconnected: session taken over.
+1776487433: New client connected from 192.168.0.182:63124 as IESWIC3A-8856A67561D4 (p4, c1, k15).
+1776487446: New connection from 192.168.0.182:52929 on port 1883.
+1776487446: Client IESWIC3A-8856A67561D4 [192.168.0.182:63124] disconnected: session taken over.
+1776487446: New client connected from 192.168.0.182:52929 as IESWIC3A-8856A67561D4 (p4, c1, k15).
+1776487521: New connection from 192.168.0.182:59536 on port 1883.
+1776487521: Client IESWIC3A-8856A67561D4 [192.168.0.182:52929] disconnected: session taken over.
+1776487521: New client connected from 192.168.0.182:59536 as IESWIC3A-8856A67561D4 (p4, c1, k15).
+1776487534: Client IESWIC3A-8856A674FCE0 [192.168.0.154:55689] disconnected: exceeded timeout.
+1776487544: New connection from 192.168.0.154:65261 on port 1883.
+1776487544: New client connected from 192.168.0.154:65261 as IESWIC3A-8856A674FCE0 (p4, c1, k15).
+1776487587: New connection from 192.168.0.154:62486 on port 1883.
+1776487587: Client IESWIC3A-8856A674FCE0 [192.168.0.154:65261] disconnected: session taken over.
+1776487587: New client connected from 192.168.0.154:62486 as IESWIC3A-8856A674FCE0 (p4, c1, k15).
+1776487617: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776487637: Client IESWIC3A-8856A675C5A0 [192.168.0.218:62325] disconnected: connection closed by client.
+1776487641: New connection from 192.168.0.218:62339 on port 1883.
+1776487641: New client connected from 192.168.0.218:62339 as IESWIC3A-8856A675C5A0 (p4, c1, k15).
+1776487663: Client IESWIC3A-8856A675C5A0 [192.168.0.218:62339] disconnected: exceeded timeout.
+1776487676: New connection from 192.168.0.218:63827 on port 1883.
+1776487676: New client connected from 192.168.0.218:63827 as IESWIC3A-8856A675C5A0 (p4, c1, k15).
+1776487694: Client IESWIC3A-8856A67561D4 [192.168.0.182:59536] disconnected: exceeded timeout.
+1776487694: Client IESWIC3A-8856A674F520 [192.168.0.165:51046] disconnected: exceeded timeout.
+1776487707: New connection from 192.168.0.182:59575 on port 1883.
+1776487707: New client connected from 192.168.0.182:59575 as IESWIC3A-8856A67561D4 (p4, c1, k15).
+1776487724: New connection from 192.168.0.165:53771 on port 1883.
+1776487724: New client connected from 192.168.0.165:53771 as IESWIC3A-8856A674F520 (p4, c1, k15).
+1776489418: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776491219: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776491604: Client IESWIC3A-8856A674FCE0 [192.168.0.154:62486] disconnected: exceeded timeout.
+1776491604: Client IESWIC3A-8856A675C5A0 [192.168.0.218:63827] disconnected: exceeded timeout.
+1776491604: Client IESWIC3A-8856A674F520 [192.168.0.165:53771] disconnected: exceeded timeout.
+1776491609: Client IESWIC3A-8856A67561D4 [192.168.0.182:59575] disconnected: exceeded timeout.
+1776491631: New connection from 192.168.0.218:64710 on port 1883.
+1776491638: New connection from 192.168.0.165:54652 on port 1883.
+1776491638: New client connected from 192.168.0.165:54652 as IESWIC3A-8856A674F520 (p4, c1, k15).
+1776491638: New connection from 192.168.0.154:63381 on port 1883.
+1776491638: New client connected from 192.168.0.154:63381 as IESWIC3A-8856A674FCE0 (p4, c1, k15).
+1776491639: New client connected from 192.168.0.218:64710 as IESWIC3A-8856A675C5A0 (p4, c1, k15).
+1776491639: Client IESWIC3A-8856A675C5A0 [192.168.0.218:64710] disconnected: connection closed by client.
+1776491672: Client IESWIC3A-8856A674F520 [192.168.0.165:54652] disconnected: connection closed by client.
+1776491672: New connection from 192.168.0.182:60456 on port 1883.
+1776491672: New client connected from 192.168.0.182:60456 as IESWIC3A-8856A67561D4 (p4, c1, k15).
+1776491675: Client IESWIC3A-8856A674FCE0 [192.168.0.154:63381] disconnected: connection closed by client.
+1776491682: New connection from 192.168.0.218:64730 on port 1883.
+1776491682: New client connected from 192.168.0.218:64730 as IESWIC3A-8856A675C5A0 (p4, c1, k15).
+1776491682: New connection from 192.168.0.154:63391 on port 1883.
+1776491682: New client connected from 192.168.0.154:63391 as IESWIC3A-8856A674FCE0 (p4, c1, k15).
+1776491689: New connection from 192.168.0.165:54664 on port 1883.
+1776491689: New client connected from 192.168.0.165:54664 as IESWIC3A-8856A674F520 (p4, c1, k15).
+1776491853: Client IESWIC3A-8856A675C5A0 [192.168.0.218:64730] disconnected: exceeded timeout.
+1776491856: Client IESWIC3A-8856A674FCE0 [192.168.0.154:63391] disconnected: exceeded timeout.
+1776491857: Client IESWIC3A-8856A674F520 [192.168.0.165:54664] disconnected: exceeded timeout.
+1776491857: Client IESWIC3A-8856A67561D4 [192.168.0.182:60456] disconnected: exceeded timeout.
+1776491879: New connection from 192.168.0.165:54708 on port 1883.
+1776491879: New client connected from 192.168.0.165:54708 as IESWIC3A-8856A674F520 (p4, c1, k15).
+1776491911: New connection from 192.168.0.182:60519 on port 1883.
+1776491911: New client connected from 192.168.0.182:60519 as IESWIC3A-8856A67561D4 (p4, c1, k15).
+1776491912: New connection from 192.168.0.218:64793 on port 1883.
+1776491912: New client connected from 192.168.0.218:64793 as IESWIC3A-8856A675C5A0 (p4, c1, k15).
+1776491914: New connection from 192.168.0.154:63453 on port 1883.
+1776491914: New client connected from 192.168.0.154:63453 as IESWIC3A-8856A674FCE0 (p4, c1, k15).
+1776492151: Client IESWIC3A-8856A67561D4 [192.168.0.182:60519] disconnected: connection closed by client.
+1776492160: New connection from 192.168.0.182:60572 on port 1883.
+1776492161: Client IESWIC3A-8856A675C5A0 [192.168.0.218:64793] disconnected: connection closed by client.
+1776492166: Client IESWIC3A-8856A674FCE0 [192.168.0.154:63453] disconnected: exceeded timeout.
+1776492171: New connection from 192.168.0.154:63509 on port 1883.
+1776492171: New connection from 192.168.0.218:64847 on port 1883.
+1776492171: New client connected from 192.168.0.154:63509 as IESWIC3A-8856A674FCE0 (p4, c1, k15).
+1776492171: New client connected from 192.168.0.218:64847 as IESWIC3A-8856A675C5A0 (p4, c1, k15).
+1776492190: Client 192.168.0.182 [192.168.0.182:60572] disconnected: exceeded timeout.
+1776492193: New connection from 192.168.0.182:60582 on port 1883.
+1776492193: New client connected from 192.168.0.182:60582 as IESWIC3A-8856A67561D4 (p4, c1, k15).
+1776492198: Client IESWIC3A-8856A674F520 [192.168.0.165:54708] disconnected: connection closed by client.
+1776492199: New connection from 192.168.0.165:54779 on port 1883.
+1776492199: New client connected from 192.168.0.165:54779 as IESWIC3A-8856A674F520 (p4, c1, k15).
+1776492577: mosquitto version 2.1.2 terminating
+1776492577: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776492577: Error saving in-memory database, unable to open /mosquitto/data//mosquitto.db.new for writing, error Permission denied
