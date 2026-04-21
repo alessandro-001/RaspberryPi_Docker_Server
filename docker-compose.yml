@@ -77,13 +77,13 @@ services:
       context: ./api
       dockerfile: Dockerfile
     container_name: iot-api
-    ports:
-      - "8000:8000"
+    network_mode: host
     environment:
-      - INFLUXDB_URL=http://influxdb:8086
+      - INFLUXDB_URL=http://127.0.0.1:8086
       - INFLUXDB_TOKEN=${INFLUXDB_TOKEN}
       - INFLUXDB_ORG=${INFLUXDB_ORG}
       - INFLUXDB_BUCKET=${INFLUXDB_BUCKET}
+      - DEVICE_SUBNET=192.168.0
     depends_on:
       - influxdb
     restart: unless-stopped
