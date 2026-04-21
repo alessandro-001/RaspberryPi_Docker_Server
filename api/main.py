@@ -149,7 +149,7 @@ def get_latest_sensor_reading(device_id: str) -> Optional[Dict]:
     '''
     try:
         result = query_api.query(query=query, org=INFLUXDB_ORG)
-        reading = {{r.get_field(): r.get_value() for t in result for r in t.records}}
+        reading = {r.get_field(): r.get_value() for t in result for r in t.records}
         return reading if reading else None
     except Exception as e:
         logger.error(f"Error fetching sensor reading for {device_id}: {e}")
@@ -178,14 +178,18 @@ def get_device_thresholds(device_id: str) -> Dict[str, float]:
 
 
 def write_alert_event(device_id: str, alert_type: str, value: float, threshold: float):
-    """Write an alert event to InfluxDB with a default acknowledged field."""
     try:
         ts = int(datetime.utcnow().timestamp())
-        point = f"""
-        alert_events,device_id={device_id},alert_type={alert_type} 
-        value={value:.4},threshold={threshold:.4},acknowledged=false {ts}
-        """
-        write_api.write(bucket=INFLUXDB_BUCKET, org=INFLUXDB_ORG, write_precision="s", record=point)
+        point = (
+            f"alert_events,device_id={device_id},alert_type={alert_type} "
+            f"value={float(value):.4f},threshold={float(threshold):.4f},acknowledged=false {ts}"
+        )
+        write_api.write(
+            bucket=INFLUXDB_BUCKET,
+            org=INFLUXDB_ORG,
+            write_precision="s",
+            record=point,
+        )
         logger.info(
             f"Alert written: device_id={device_id}, alert_type={alert_type}, "
             f"value={value}, threshold={threshold}, acknowledged=false"
