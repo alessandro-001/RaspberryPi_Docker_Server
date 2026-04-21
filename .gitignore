@@ -2,4 +2,4 @@
 __pycache__/
 *.pyc
 
-.env
+.envesp32-influx/mosquitto/data/mosquitto.db
