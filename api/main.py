@@ -1,15 +1,15 @@
 import os
 import asyncio
-from datetime import datetime, timedelta
-from typing import List, Dict, Optional
+from datetime import datetime, timezone
+from typing import Any, List, Dict, Optional
 from pydantic import BaseModel, Field
-from fastapi import FastAPI, HTTPException, Query, Body
+from fastapi import FastAPI, HTTPException, Query, Body, Security
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import APIKeyHeader
 from influxdb_client import InfluxDBClient
 from influxdb_client.client.write_api import SYNCHRONOUS
 import httpx
 import logging
-
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -20,6 +20,13 @@ app = FastAPI(
     version="1.0.0"
 )
 
+API_KEY = os.getenv("API_KEY", "bossfarm-secret-2024")
+api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False)
+
+async def verify_api_key(key: str = Security(api_key_header)):
+    if key != API_KEY:
+        raise HTTPException(status_code=403, detail="Invalid API key")
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -28,126 +35,93 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# InfluxDB Configuration
-INFLUXDB_URL = os.getenv("INFLUXDB_URL", "http://influxdb:8086")
-INFLUXDB_TOKEN = os.getenv("INFLUXDB_TOKEN")
-INFLUXDB_ORG = os.getenv("INFLUXDB_ORG", "myorg")
+INFLUXDB_URL    = os.getenv("INFLUXDB_URL",    "http://influxdb:8086")
+INFLUXDB_TOKEN  = os.getenv("INFLUXDB_TOKEN")
+INFLUXDB_ORG    = os.getenv("INFLUXDB_ORG",   "myorg")
 INFLUXDB_BUCKET = os.getenv("INFLUXDB_BUCKET", "esp32_sensors")
 
-client = InfluxDBClient(url=INFLUXDB_URL, token=INFLUXDB_TOKEN, org=INFLUXDB_ORG)
+client    = InfluxDBClient(url=INFLUXDB_URL, token=INFLUXDB_TOKEN, org=INFLUXDB_ORG)
 write_api = client.write_api(write_options=SYNCHRONOUS)
 query_api = client.query_api()
 
-# Pydantic Models
 class ActiveAlarm(BaseModel):
-    device_id: str
-    alert_type: str
-    value: float
-    threshold: float
+    device_id:    str
+    alert_type:   str
+    value:        float
+    threshold:    float
     triggered_at: str
     time_elapsed: str
 
-class AlarmHistory(BaseModel):
-    device_id: str
-    alert_type: str
-    value: float
-    threshold: float
-    triggered_at: str
-    acknowledged: bool
-    acknowledged_at: Optional[str] = None
-
 class BatchThresholdUpdate(BaseModel):
-    device_ids: Optional[List[str]] = None  # If empty/null, applies to all registered devices
-    thresholds: Dict[str, float] = Field(
-        ...,
-        description="Thresholds to set, e.g. {'temp_high': 33, 'hum_high': 73, 'tvoc_high': 403, 'co2_high': 903}"
-    )
-
+    device_ids: Optional[List[str]] = None
+    thresholds: Dict[str, float] = Field(...)
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
-                "device_ids": [
-                    "IESWIC3A_XX:XX",
-                    "IESWIC3A_YY:YY"
-                ],
+                "device_ids": ["IESWIC3A_XX:XX"],
                 "thresholds": {
-                    "temp_high": 33,
-                    "hum_high": 73,
-                    "tvoc_high": 403,
-                    "co2_high": 903
+                    "temp_high": 33, "temp_low": 10,
+                    "hum_high":  73, "hum_low":  25,
+                    "aqi_high": 3, "co2_high": 903, "tvoc_high": 403
                 }
             }
         }
 
 class DeviceConfig(BaseModel):
-    device_id: str
+    device_id:  str
     thresholds: Dict[str, float]
 
-# Device IP Registry: maps device_id -> LAN IP
-# Auto-populated by periodic discovery scan, or manually via /api/devices/{id}/register
 device_ip_registry: Dict[str, str] = {}
 
-# Subnet to scan for device discovery (matches LOCAL_MQTT_SERVER in config.h)
-DEVICE_SUBNET = os.getenv("DEVICE_SUBNET", "192.168.0")
+DEVICE_SUBNET    = os.getenv("DEVICE_SUBNET",    "192.168.0")
 DEVICE_SCAN_FROM = int(os.getenv("DEVICE_SCAN_FROM", "1"))
-DEVICE_SCAN_TO = int(os.getenv("DEVICE_SCAN_TO", "254"))
+DEVICE_SCAN_TO   = int(os.getenv("DEVICE_SCAN_TO",   "254"))
 
-# Mapping from API threshold keys to device query param names
 API_TO_DEVICE_KEYS = {
     "temp_high": "temp",
-    "hum_high": "hum",
+    "hum_high":  "hum",
     "tvoc_high": "tvoc",
-    "co2_high": "eco2",
+    "co2_high":  "eco2",
+    "temp_low":  "temp_low",
+    "hum_low":   "hum_low",
 }
 
-# Default Thresholds
-DEFAULT_THRESHOLDS = {
-    "temp_high": 30.0,
-    "temp_low": 5.0,
-    "hum_high": 80.0,
-    "hum_low": 20.0,
-    "aqi_high": 3,
-    "co2_high": 1000,
-    "tvoc_high": 500,
+DEFAULT_THRESHOLDS: Dict[str, float] = {
+    "temp_high": 30.0, "temp_low":  5.0,
+    "hum_high":  80.0, "hum_low":  20.0,
+    "aqi_high":   3.0,
+    "co2_high": 1000.0,
+    "tvoc_high": 500.0,
 }
 
-# ===== HELPER FUNCTIONS =====
+ALARM_COOLDOWN_SECONDS = 300
+ALARM_QUERY_RANGE = os.getenv("ALARM_QUERY_RANGE", "-30d")
+_alarm_last_triggered: Dict[tuple, datetime] = {}
+
 
 async def push_thresholds_to_device(device_id: str, thresholds: Dict[str, float]) -> Optional[str]:
     device_ip = device_ip_registry.get(device_id)
     if not device_ip:
         return f"No IP registered for {device_id}"
-    
-    # Map API keys to device query params
-    params = {}
-    for api_key, device_key in API_TO_DEVICE_KEYS.items():
-        if api_key in thresholds:
-            params[device_key] = thresholds[api_key]
-    
+    params = {dkey: thresholds[akey] for akey, dkey in API_TO_DEVICE_KEYS.items() if akey in thresholds}
+    params["from_api"] = "1"
     if not params:
         return "No mappable threshold keys found"
-    
-    url = f"http://{device_ip}/set_thresh"
-    
-    # Fire-and-forget: the device's /set_thresh handler calls back to the API,
-    # which makes a synchronous round-trip. We launch the request as a background
-    # task so we don't block the API response or cause deadlocks.
     async def _do_push():
         try:
-            async with httpx.AsyncClient(timeout=15.0) as http_client:
-                resp = await http_client.get(url, params=params)
+            async with httpx.AsyncClient(timeout=15.0) as c:
+                resp = await c.get(f"http://{device_ip}/set_thresh", params=params)
                 if resp.status_code == 200:
                     logger.info(f"Thresholds pushed to {device_id} at {device_ip}")
                 else:
                     logger.warning(f"Device {device_id} returned HTTP {resp.status_code}")
         except Exception as e:
-            logger.error(f"Failed to push thresholds to {device_id} at {device_ip}: {e}")
-    
+            logger.error(f"Failed to push to {device_id}: {e}")
     asyncio.create_task(_do_push())
-    return None  # Optimistically report success
+    return None
+
 
 def get_latest_device_ids() -> List[str]:
-    """Fetch all unique device_ids from IESWIC3A measurement"""
     query = f'''
     from(bucket: "{INFLUXDB_BUCKET}")
       |> range(start: -1h)
@@ -158,19 +132,14 @@ def get_latest_device_ids() -> List[str]:
     '''
     try:
         result = query_api.query(query=query, org=INFLUXDB_ORG)
-        device_ids = []
-        for table in result:
-            for record in table.records:
-                device_id = record.values.get("device_id")
-                if device_id:
-                    device_ids.append(device_id)
-        return list(set(device_ids))
+        ids = [r.values.get("device_id") for t in result for r in t.records]
+        return list(set(i for i in ids if i))
     except Exception as e:
         logger.error(f"Error fetching device_ids: {e}")
         return []
 
+
 def get_latest_sensor_reading(device_id: str) -> Optional[Dict]:
-    """Get the most recent sensor reading for a device"""
     query = f'''
     from(bucket: "{INFLUXDB_BUCKET}")
       |> range(start: -5m)
@@ -180,19 +149,14 @@ def get_latest_sensor_reading(device_id: str) -> Optional[Dict]:
     '''
     try:
         result = query_api.query(query=query, org=INFLUXDB_ORG)
-        reading = {}
-        for table in result:
-            for record in table.records:
-                field = record.get_field()
-                value = record.get_value()
-                reading[field] = value
+        reading = {{r.get_field(): r.get_value() for t in result for r in t.records}}
         return reading if reading else None
     except Exception as e:
         logger.error(f"Error fetching sensor reading for {device_id}: {e}")
         return None
 
+
 def get_device_thresholds(device_id: str) -> Dict[str, float]:
-    """Fetch device thresholds from InfluxDB device_config measurement"""
     query = f'''
     from(bucket: "{INFLUXDB_BUCKET}")
       |> range(start: -30d)
@@ -202,337 +166,391 @@ def get_device_thresholds(device_id: str) -> Dict[str, float]:
     try:
         result = query_api.query(query=query, org=INFLUXDB_ORG)
         thresholds = DEFAULT_THRESHOLDS.copy()
-        
         for table in result:
             for record in table.records:
-                field = record.get_field()
-                value = record.get_value()
-                # Filter out non-numeric fields (booleans, strings) to avoid aggregation errors
-                if field in thresholds and isinstance(value, (int, float)):
-                    try:
-                        thresholds[field] = float(value)
-                    except (ValueError, TypeError):
-                        logger.warning(f"Skipping non-numeric threshold {field}={value}")
+                f, v = record.get_field(), record.get_value()
+                if f in thresholds and isinstance(v, (int, float)):
+                    thresholds[f] = float(v)
         return thresholds
     except Exception as e:
         logger.warning(f"Using default thresholds for {device_id}: {e}")
         return DEFAULT_THRESHOLDS.copy()
 
+
 def write_alert_event(device_id: str, alert_type: str, value: float, threshold: float):
-    """Write an alert event to InfluxDB"""
+    """Write an alert event to InfluxDB with a default acknowledged field."""
     try:
-        timestamp = int(datetime.utcnow().timestamp())
-        point = (
-            f"alert_events,device_id={device_id},alert_type={alert_type} "
-            f"value={value},threshold={threshold},acknowledged=false {timestamp}"        
-        )
+        ts = int(datetime.utcnow().timestamp())
+        point = f"""
+        alert_events,device_id={device_id},alert_type={alert_type} 
+        value={value:.4},threshold={threshold:.4},acknowledged=false {ts}
+        """
         write_api.write(bucket=INFLUXDB_BUCKET, org=INFLUXDB_ORG, write_precision="s", record=point)
-        logger.info(f"Alert written: {device_id} - {alert_type} (value={value}, threshold={threshold})")
+        logger.info(
+            f"Alert written: device_id={device_id}, alert_type={alert_type}, "
+            f"value={value}, threshold={threshold}, acknowledged=false"
+        )
     except Exception as e:
-        logger.error(f"Error writing alert: {e}")
+        logger.error(f"Error while writing alert event: {e}")
+
+
+def _is_cooldown_active(device_id: str, alert_type: str) -> bool:
+    last = _alarm_last_triggered.get((device_id, alert_type))
+    return last is not None and (datetime.utcnow() - last).total_seconds() < ALARM_COOLDOWN_SECONDS
+
+
+def _mark_alarm_triggered(device_id: str, alert_type: str):
+    _alarm_last_triggered[(device_id, alert_type)] = datetime.utcnow()
+
+
+def _parse_acknowledged(value: Any) -> bool:
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, (int, float)):
+        return value != 0
+    if isinstance(value, str):
+        normalized = value.strip().lower()
+        if normalized in {"true", "t", "1", "yes", "y"}:
+            return True
+        if normalized in {"false", "f", "0", "no", "n", ""}:
+            return False
+    return False
+
+
+def _format_elapsed(triggered_at: datetime) -> str:
+    if triggered_at.tzinfo is None:
+        triggered_at = triggered_at.replace(tzinfo=timezone.utc)
+    else:
+        triggered_at = triggered_at.astimezone(timezone.utc)
+
+    elapsed_seconds = max(0, int((datetime.now(timezone.utc) - triggered_at).total_seconds()))
+    if elapsed_seconds < 3600:
+        return f"{elapsed_seconds // 60}m ago"
+    if elapsed_seconds < 86400:
+        return f"{elapsed_seconds // 3600}h ago"
+    return f"{elapsed_seconds // 86400}d ago"
+
+
+def _fetch_active_alarm_models() -> List[ActiveAlarm]:
+    query = f'''
+    from(bucket: "{INFLUXDB_BUCKET}")
+      |> range(start: {ALARM_QUERY_RANGE})
+      |> filter(fn: (r) => r._measurement == "alert_events")
+      |> pivot(
+           rowKey:      ["_time", "device_id", "alert_type"],
+           columnKey:   ["_field"],
+           valueColumn: "_value"
+         )
+      |> sort(columns: ["_time"], desc: true)
+    '''
+    result = query_api.query(query=query, org=INFLUXDB_ORG)
+
+    records = [record for table in result for record in table.records]
+    records.sort(
+        key=lambda record: record.get_time() or datetime.min.replace(tzinfo=timezone.utc),
+        reverse=True,
+    )
+
+    alarms: List[ActiveAlarm] = []
+    seen = set()
+    for record in records:
+        device_id = record.values.get("device_id", "unknown")
+        alert_type = record.values.get("alert_type", "unknown")
+        alarm_key = (device_id, alert_type)
+
+        if alarm_key in seen:
+            continue
+
+        if _parse_acknowledged(record.values.get("acknowledged", False)):
+            seen.add(alarm_key)
+            continue
+
+        triggered_at = record.get_time()
+        value = record.values.get("value")
+        threshold = record.values.get("threshold")
+
+        if triggered_at is None or value is None or threshold is None:
+            continue
+
+        try:
+            alarm = ActiveAlarm(
+                device_id=device_id,
+                alert_type=alert_type,
+                value=float(value),
+                threshold=float(threshold),
+                triggered_at=triggered_at.isoformat(),
+                time_elapsed=_format_elapsed(triggered_at),
+            )
+        except (TypeError, ValueError):
+            logger.warning(
+                "Skipping malformed active alarm record for %s/%s: value=%r threshold=%r",
+                device_id,
+                alert_type,
+                value,
+                threshold,
+            )
+            continue
+
+        alarms.append(alarm)
+        seen.add(alarm_key)
+
+    return alarms
+
 
 def check_thresholds_and_trigger_alarms(device_id: str, reading: Dict):
-    """Compare sensor reading against thresholds and trigger alarms if breached"""
-    thresholds = get_device_thresholds(device_id)
-    
-    # Temperature checks
-    if "temperature" in reading:
-        temp = reading["temperature"]
-        if temp > thresholds["temp_high"]:
-            write_alert_event(device_id, "temp_high", temp, thresholds["temp_high"])
-        elif temp < thresholds["temp_low"]:
-            write_alert_event(device_id, "temp_low", temp, thresholds["temp_low"])
-    
-    # Humidity checks
-    if "humidity" in reading:
-        hum = reading["humidity"]
-        if hum > thresholds["hum_high"]:
-            write_alert_event(device_id, "hum_high", hum, thresholds["hum_high"])
-        elif hum < thresholds["hum_low"]:
-            write_alert_event(device_id, "hum_low", hum, thresholds["hum_low"])
-    
-    # AQI check
-    if "aqi" in reading:
-        aqi = reading["aqi"]
-        if int(aqi) > int(thresholds["aqi_high"]):
-            write_alert_event(device_id, "aqi_high", float(aqi), thresholds["aqi_high"])
-    
-    # CO2 check
-    if "eco2" in reading:
-        co2 = reading["eco2"]
-        if int(co2) > int(thresholds["co2_high"]):
-            write_alert_event(device_id, "co2_high", float(co2), thresholds["co2_high"])
-    
-    # TVOC check
-    if "tvoc" in reading:
-        tvoc = reading["tvoc"]
-        if int(tvoc) > int(thresholds["tvoc_high"]):
-            write_alert_event(device_id, "tvoc_high", float(tvoc), thresholds["tvoc_high"])
+    temp = reading.get("temperature")
+    hum  = reading.get("humidity")
 
-# ===== BACKGROUND ALARM PROCESSOR =====
+    if temp is not None and hum is not None and temp == 0.0 and hum == 0.0:
+        logger.warning(f"[{device_id}] Skipping — temp and hum both 0.0 (sensor offline?)")
+        return
+
+    thresholds = get_device_thresholds(device_id)
+
+    def maybe_trigger(alert_type: str, value: float, threshold: float):
+        if not _is_cooldown_active(device_id, alert_type):
+            write_alert_event(device_id, alert_type, value, threshold)
+            _mark_alarm_triggered(device_id, alert_type)
+
+    if temp is not None and temp != 0.0:
+        if temp > thresholds["temp_high"]:
+            maybe_trigger("temp_high", temp, thresholds["temp_high"])
+        elif temp < thresholds["temp_low"]:
+            maybe_trigger("temp_low", temp, thresholds["temp_low"])
+
+    if hum is not None and hum != 0.0:
+        if hum > thresholds["hum_high"]:
+            maybe_trigger("hum_high", hum, thresholds["hum_high"])
+        elif hum < thresholds["hum_low"]:
+            maybe_trigger("hum_low", hum, thresholds["hum_low"])
+
+    aqi = reading.get("aqi")
+    if aqi is not None and aqi != 0:
+        if reading.get("air_quality_status") != "Error" and reading.get("aqi_label") != "Unknown":
+            if int(aqi) > int(thresholds["aqi_high"]):
+                maybe_trigger("aqi_high", float(aqi), thresholds["aqi_high"])
+
+    tvoc = reading.get("tvoc")
+    if tvoc is not None and tvoc > 0 and tvoc > thresholds["tvoc_high"]:
+        maybe_trigger("tvoc_high", float(tvoc), thresholds["tvoc_high"])
+
+    eco2 = reading.get("eco2")
+    if eco2 is not None and eco2 > 0 and eco2 > thresholds["co2_high"]:
+        maybe_trigger("co2_high", float(eco2), thresholds["co2_high"])
+
 
 async def discover_devices():
-    """Scan the local subnet for ESP32 devices and register their IPs"""
-    logger.info(f"Starting device discovery scan on {DEVICE_SUBNET}.{DEVICE_SCAN_FROM}-{DEVICE_SCAN_TO}")
+    logger.info(f"Scanning {DEVICE_SUBNET}.{DEVICE_SCAN_FROM}-{DEVICE_SCAN_TO}")
     found = 0
     ips = [f"{DEVICE_SUBNET}.{i}" for i in range(DEVICE_SCAN_FROM, DEVICE_SCAN_TO + 1)]
-    
-    async def probe(ip: str, http_client: httpx.AsyncClient):
+
+    async def probe(ip, http_client):
         nonlocal found
         try:
             resp = await http_client.get(f"http://{ip}/device_info")
             if resp.status_code == 200:
                 info = resp.json()
-                device_name = info.get("device_name", "")
-                if device_name.startswith("ESP32"):
+                if info.get("device_name", "").startswith("ESP32"):
                     mac = info.get("device_id", "")
                     if mac:
-                        device_id = "IESWIC3A_" + mac[-5:]
-                        device_ip_registry[device_id] = ip
+                        did = "IESWIC3A_" + mac[-5:]
+                        device_ip_registry[did] = ip
                         found += 1
-                        logger.info(f"Discovered {device_id} at {ip}")
+                        logger.info(f"Discovered {did} at {ip}")
         except Exception:
             pass
 
-    async with httpx.AsyncClient(timeout=3.0) as http_client:
-        # Scan in parallel batches of 30
-        batch_size = 30
-        for b in range(0, len(ips), batch_size):
-            batch = ips[b:b + batch_size]
-            await asyncio.gather(*(probe(ip, http_client) for ip in batch))
-    logger.info(f"Device discovery complete: found {found} device(s)")
+    async with httpx.AsyncClient(timeout=3.0) as c:
+        for b in range(0, len(ips), 30):
+            await asyncio.gather(*(probe(ip, c) for ip in ips[b:b+30]))
+    logger.info(f"Discovery done: {found} device(s)")
+
 
 async def device_discovery_task():
-    """Background task that discovers devices on startup and every 5 minutes"""
-    await asyncio.sleep(15)  # Wait for network to be ready
+    await asyncio.sleep(15)
     while True:
         try:
             await discover_devices()
         except Exception as e:
-            logger.error(f"Error in device discovery: {e}")
-        await asyncio.sleep(300)  # Re-scan every 5 minutes
+            logger.error(f"Discovery error: {e}")
+        await asyncio.sleep(300)
+
 
 async def alarm_processor_task():
-    """Background task that checks thresholds every 30s"""
-    await asyncio.sleep(10)  # Wait for InfluxDB to be ready
-    
+    await asyncio.sleep(10)
     while True:
         try:
             device_ids = get_latest_device_ids()
             if device_ids:
                 logger.info(f"Checking {len(device_ids)} devices for threshold breaches")
-                
                 for device_id in device_ids:
                     reading = get_latest_sensor_reading(device_id)
                     if reading:
                         check_thresholds_and_trigger_alarms(device_id, reading)
-            
             await asyncio.sleep(30)
         except Exception as e:
-            logger.error(f"Error in alarm processor: {e}")
+            logger.error(f"Alarm processor error: {e}")
             await asyncio.sleep(30)
+
 
 @app.on_event("startup")
 async def startup_event():
-    """Start background tasks on app startup"""
     asyncio.create_task(alarm_processor_task())
     asyncio.create_task(device_discovery_task())
     logger.info("Alarm processor and device discovery tasks started")
 
-# ===== API ENDPOINTS =====
 
 @app.get("/health")
 async def health_check():
-    """Health check endpoint"""
     return {"status": "ok", "service": "IoT Alarm API", "timestamp": datetime.utcnow().isoformat()}
 
 @app.get("/api/devices", response_model=List[str])
 async def get_devices():
-    """Get list of all active device IDs"""
-    devices = get_latest_device_ids()
-    return devices
+    return get_latest_device_ids()
+
 
 @app.get("/api/alarms/active", response_model=List[ActiveAlarm])
 async def get_active_alarms():
-    """Get all currently active (unacknowledged) alarms"""
-    query = f'''
-    from(bucket: "{INFLUXDB_BUCKET}")
-      |> range(start: -24h)
-      |> filter(fn: (r) => r._measurement == "alert_events")
-      |> pivot(rowKey: ["_time", "device_id", "alert_type"], columnKey: ["_field"], valueColumn: "_value")
-      |> filter(fn: (r) => r.acknowledged != "true")
-      |> group(columns: ["device_id", "alert_type"])
-      |> last()
-      |> sort(columns: ["_time"], desc: true)
-    '''
     try:
-        result = query_api.query(query=query, org=INFLUXDB_ORG)
-        alarms = []
-        
-        for table in result:
-            for record in table.records:
-                device_id = record.tags.get("device_id", "unknown")
-                alert_type = record.tags.get("alert_type", "unknown")
-                triggered_at = record.get_time()
-                
-                # After pivot, fields become columns in record.values
-                value = record.values.get("value")
-                threshold = record.values.get("threshold")
-                
-                if value is None or threshold is None:
-                    logger.warning(f"Missing value or threshold for {device_id}-{alert_type}")
-                    continue
-                
-                # Compute time elapsed
-                now = datetime.utcnow().replace(tzinfo=None)
-                elapsed = now - triggered_at.replace(tzinfo=None)
-                hours = int(elapsed.total_seconds() / 3600)
-                minutes = int((elapsed.total_seconds() % 3600) / 60)
-                time_elapsed = f"{hours}h {minutes}m ago" if hours > 0 else f"{minutes}m ago"
-                
-                alarm = ActiveAlarm(
-                    device_id=device_id,
-                    alert_type=alert_type,
-                    value=float(value),
-                    threshold=float(threshold),
-                    triggered_at=triggered_at.isoformat(),
-                    time_elapsed=time_elapsed
-                )
-                alarms.append(alarm)
-        
-        logger.info(f"Returning {len(alarms)} active alarms")
+        alarms = _fetch_active_alarm_models()
+        logger.info(f"Fetched {len(alarms)} active alarms.")
         return alarms
     except Exception as e:
         logger.error(f"Error fetching active alarms: {e}", exc_info=True)
         return []
 
-        
+
 @app.get("/api/alarms/history")
 async def get_alarm_history(hours: int = Query(24, ge=1, le=720)):
-    """Get alarm history for the last N hours"""
     query = f'''
     from(bucket: "{INFLUXDB_BUCKET}")
       |> range(start: -{hours}h)
       |> filter(fn: (r) => r._measurement == "alert_events")
+      |> pivot(
+           rowKey:      ["_time", "device_id", "alert_type"],
+           columnKey:   ["_field"],
+           valueColumn: "_value"
+         )
       |> sort(columns: ["_time"], desc: true)
     '''
     try:
         result = query_api.query(query=query, org=INFLUXDB_ORG)
         alarms = []
-        
         for table in result:
             for record in table.records:
-                device_id = record.tags.get("device_id", "unknown")
-                alert_type = record.tags.get("alert_type", "unknown")
-                triggered_at = record.get_time()
-                
-                field = record.get_field()
-                value = record.get_value()
-                
-                alarm_entry = {
-                    "device_id": device_id,
-                    "alert_type": alert_type,
-                    "triggered_at": triggered_at.isoformat(),
-                    "field": field,
-                    "value": value,
-                }
-                alarms.append(alarm_entry)
-        
+                acknowledged = _parse_acknowledged(record.values.get("acknowledged", False))
+                alarms.append({
+                    "device_id":    record.values.get("device_id",  "unknown"),     
+                    "alert_type":   record.values.get("alert_type", "unknown"),
+                    "triggered_at": record.get_time().isoformat(),
+                    "value":        float(record.values["value"])     if record.values.get("value")     is not None else None,
+                    "threshold":    float(record.values["threshold"]) if record.values.get("threshold") is not None else None,
+                    "acknowledged": acknowledged,
+                })
         return alarms
     except Exception as e:
         logger.error(f"Error fetching alarm history: {e}")
         return []
 
+
 @app.post("/api/alarms/{device_id}/{alert_type}/acknowledge")
 async def acknowledge_alarm(device_id: str, alert_type: str):
-    """Mark an alarm as acknowledged"""
     try:
-        timestamp = int(datetime.utcnow().timestamp())
-        point = (
-            f"alert_events,device_id={device_id},alert_type={alert_type} "
-            f"acknowledged=true {timestamp}"
+        ts = int(datetime.utcnow().timestamp())
+        write_api.write(
+            bucket=INFLUXDB_BUCKET, org=INFLUXDB_ORG, write_precision="s",
+            record=f"alert_events,device_id={device_id},alert_type={alert_type} acknowledged=true {ts}"
         )
-        write_api.write(bucket=INFLUXDB_BUCKET, org=INFLUXDB_ORG, write_precision="s", record=point)
-        
         logger.info(f"Alarm acknowledged: {device_id} - {alert_type}")
-        return {
-            "status": "acknowledged",
-            "device_id": device_id,
-            "alert_type": alert_type,
-            "timestamp": datetime.utcnow().isoformat()
-        }
+        return {"status": "acknowledged", "device_id": device_id, "alert_type": alert_type,
+                "timestamp": datetime.utcnow().isoformat()}
     except Exception as e:
         logger.error(f"Error acknowledging alarm: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+
+@app.post("/api/alarms/acknowledge-all")
+async def acknowledge_all_alarms():
+    try:
+        alarms = _fetch_active_alarm_models()
+        if not alarms:
+            return {"status": "ok", "acknowledged": 0, "alarms": []}
+
+        ts = int(datetime.utcnow().timestamp())
+        records = [
+            f"alert_events,device_id={alarm.device_id},alert_type={alarm.alert_type} acknowledged=true {ts}"
+            for alarm in alarms
+        ]
+        write_api.write(
+            bucket=INFLUXDB_BUCKET,
+            org=INFLUXDB_ORG,
+            write_precision="s",
+            record=records,
+        )
+        logger.info("Acknowledged %d active alarms", len(alarms))
+        return {
+            "status": "ok",
+            "acknowledged": len(alarms),
+            "alarms": [
+                {"device_id": alarm.device_id, "alert_type": alarm.alert_type}
+                for alarm in alarms
+            ],
+        }
+    except Exception as e:
+        logger.error(f"Error acknowledging all alarms: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @app.post("/api/thresholds/batch")
 async def set_thresholds_batch(update: BatchThresholdUpdate):
-    """Set the same thresholds for multiple devices. If device_ids is empty/null, applies to all registered devices.
-    Replaces existing devices IDs and set the new thresholds. """
     device_ids = update.device_ids if update.device_ids else list(device_ip_registry.keys())
     if not device_ids:
-        # Fall back to devices known from InfluxDB
         device_ids = get_latest_device_ids()
-    
-    numeric_thresholds = {k: v for k, v in update.thresholds.items()
-                         if isinstance(v, (int, float))}
+    numeric = {k: v for k, v in update.thresholds.items() if isinstance(v, (int, float))}
     results = []
     for device_id in device_ids:
         try:
-            timestamp = int(datetime.utcnow().timestamp())
-            fields = ",".join([f"{k}={v}" for k, v in numeric_thresholds.items()])
-            point = f"device_config,device_id={device_id} {fields} {timestamp}"
-            write_api.write(bucket=INFLUXDB_BUCKET, org=INFLUXDB_ORG, write_precision="s", record=point)
-            
+            ts     = int(datetime.utcnow().timestamp())
+            fields = ",".join([f"{k}={v}" for k, v in numeric.items()])
+            write_api.write(bucket=INFLUXDB_BUCKET, org=INFLUXDB_ORG, write_precision="s",
+                            record=f"device_config,device_id={device_id} {fields} {ts}")
             entry = {"device_id": device_id, "status": "updated"}
             if device_id in device_ip_registry:
-                device_error = await push_thresholds_to_device(device_id, numeric_thresholds)
-                entry["device_synced"] = device_error is None
-                if device_error:
-                    entry["device_sync_error"] = device_error
+                err = await push_thresholds_to_device(device_id, numeric)
+                entry["device_synced"] = err is None
+                if err: entry["device_sync_error"] = err
             else:
                 entry["device_synced"] = False
                 entry["device_sync_error"] = "No IP registered"
             results.append(entry)
         except Exception as e:
             results.append({"device_id": device_id, "status": "error", "error": str(e)})
-
     return {"updated": len([r for r in results if r["status"] == "updated"]), "results": results}
+
 
 @app.get("/api/thresholds/{device_id}", response_model=Dict[str, float])
 async def get_thresholds(device_id: str):
-    """Get current threshold settings for a device"""
     return get_device_thresholds(device_id)
+
 
 @app.post("/api/thresholds/{device_id}")
 async def set_thresholds(device_id: str, config: DeviceConfig):
-    """Set threshold values for a device. Also pushes to the device via HTTP if its IP is known."""
     try:
-        timestamp = int(datetime.utcnow().timestamp())
-        # Only include numeric threshold fields to avoid boolean type conflicts
-        numeric_thresholds = {k: v for k, v in config.thresholds.items() 
-                             if isinstance(v, (int, float))}
-        fields = ",".join([f"{k}={v}" for k, v in numeric_thresholds.items()])
-        point = f"device_config,device_id={device_id} {fields} {timestamp}"
-        
-        write_api.write(bucket=INFLUXDB_BUCKET, org=INFLUXDB_ORG, write_precision="s", record=point)
-        
-        # Push to device if IP is known in the registry
-        device_push_result = None
+        ts      = int(datetime.utcnow().timestamp())
+        numeric = {k: v for k, v in config.thresholds.items() if isinstance(v, (int, float))}
+        fields  = ",".join([f"{k}={v}" for k, v in numeric.items()])
+        write_api.write(bucket=INFLUXDB_BUCKET, org=INFLUXDB_ORG, write_precision="s",
+                        record=f"device_config,device_id={device_id} {fields} {ts}")
+        push_err = None
         if device_id in device_ip_registry:
-            device_push_result = await push_thresholds_to_device(device_id, numeric_thresholds)
-        
+            push_err = await push_thresholds_to_device(device_id, numeric)
         logger.info(f"Thresholds updated for {device_id}: {config.thresholds}")
-        result = {
-            "status": "updated",
-            "device_id": device_id,
-            "thresholds": config.thresholds
-        }
-        if device_push_result is None and device_id in device_ip_registry:
+        result = {"status": "updated", "device_id": device_id, "thresholds": config.thresholds}
+        if push_err is None and device_id in device_ip_registry:
             result["device_synced"] = True
-        elif device_push_result:
+        elif push_err:
             result["device_synced"] = False
-            result["device_sync_error"] = device_push_result
+            result["device_sync_error"] = push_err
         return result
     except Exception as e:
         logger.error(f"Error setting thresholds: {e}")
@@ -541,48 +559,35 @@ async def set_thresholds(device_id: str, config: DeviceConfig):
 
 @app.post("/api/devices/{device_id}/register")
 async def register_device_ip(device_id: str, ip: str = Body(..., embed=True)):
-    """Register a device's LAN IP so the API can push threshold updates to it"""
     device_ip_registry[device_id] = ip
     logger.info(f"Device IP registered: {device_id} -> {ip}")
     return {"status": "registered", "device_id": device_id, "ip": ip}
 
 @app.get("/api/devices/registry")
 async def get_device_registry():
-    """Get all registered device IPs"""
     return device_ip_registry
 
 @app.get("/api/devices/{device_id}/thresholds_from_device")
 async def get_thresholds_from_device(device_id: str):
-    """Fetch current thresholds directly from the device via HTTP"""
     device_ip = device_ip_registry.get(device_id)
     if not device_ip:
         raise HTTPException(status_code=404, detail=f"No IP registered for {device_id}")
     try:
-        async with httpx.AsyncClient(timeout=5.0) as client:
-            resp = await client.get(f"http://{device_ip}/get_thresh")
+        async with httpx.AsyncClient(timeout=5.0) as c:
+            resp = await c.get(f"http://{device_ip}/get_thresh")
             if resp.status_code == 200:
                 return {"device_id": device_id, "ip": device_ip, "thresholds": resp.json()}
-            else:
-                raise HTTPException(status_code=502, detail=f"Device returned HTTP {resp.status_code}")
+            raise HTTPException(status_code=502, detail=f"Device returned HTTP {resp.status_code}")
     except httpx.RequestError as e:
         raise HTTPException(status_code=502, detail=f"Cannot reach device at {device_ip}: {e}")
 
 @app.get("/api/devices/{device_id}/latest")
 async def get_device_latest_reading(device_id: str):
-    """Get latest sensor reading for a specific device"""
     reading = get_latest_sensor_reading(device_id)
     if not reading:
         raise HTTPException(status_code=404, detail=f"No recent data for device {device_id}")
-    return {
-        "device_id": device_id,
-        "reading": reading,
-        "timestamp": datetime.utcnow().isoformat()
-    }
+    return {"device_id": device_id, "reading": reading, "timestamp": datetime.utcnow().isoformat()}
 
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
-
-
-
-
