@@ -1,372 +1,273 @@
-# ESP32 MQTT + InfluxDB Stack
+# BOSS FARM — ESP32 IoT Monitoring Stack
 
-This project runs a small IoT platform for ESP32 sensor devices using Docker Compose.
+![Mosquitto](https://img.shields.io/badge/Mosquitto-MQTT_Broker-ff6600?style=flat-square)
+![InfluxDB](https://img.shields.io/badge/InfluxDB-2.7-22ADF6?style=flat-square)
+![Telegraf](https://img.shields.io/badge/Telegraf-1.30-green?style=flat-square)
+![Grafana](https://img.shields.io/badge/Grafana-Dashboard-orange?style=flat-square)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?style=flat-square)
+![Python](https://img.shields.io/badge/Python-3.11-blue?style=flat-square)
+![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=flat-square)
 
-It includes:
+Real-time environmental monitoring platform for IESWIC3A sensor nodes (ESP32-C3). Devices publish temperature, humidity, AQI, TVOC and eCO2 readings over MQTT. The stack stores, visualises and raises alarms on threshold breaches — all running on a Raspberry Pi.
 
-- `mosquitto`: MQTT broker for device messages
-- `telegraf`: subscribes to MQTT topics and writes sensor/config data into InfluxDB
-- `influxdb`: time-series database
-- `grafana`: dashboards and visualization
-- `api`: FastAPI service for device readings, alarms, thresholds, and device registry
+---
 
 ## Architecture
 
-Data flow:
+```
+IESWIC3A Sensor Nodes (ESP32-C3)
+        │
+        │  MQTT  (topic: IESWIC3A/#)
+        ▼
+  ┌─────────────┐
+  │  Mosquitto  │  MQTT Broker  :1883
+  └──────┬──────┘
+         │
+         ▼
+  ┌─────────────┐
+  │   Telegraf  │  Parses JSON payloads → writes to InfluxDB
+  └──────┬──────┘
+         │
+         ▼
+  ┌─────────────┐        ┌─────────────┐
+  │   InfluxDB  │◄───────│   FastAPI   │  :8000  Alarms · Thresholds · Devices
+  └──────┬──────┘        └─────────────┘
+         │
+         ▼
+  ┌─────────────┐
+  │   Grafana   │  :3000  Real-time dashboards
+  └─────────────┘
+```
 
-1. ESP32 devices publish JSON payloads to MQTT topics under `IESWIC3A/...`
-2. `mosquitto` receives the messages
-3. `telegraf` consumes MQTT messages and writes them to InfluxDB
-4. `grafana` reads from InfluxDB for dashboards
-5. `api` reads from InfluxDB and exposes HTTP endpoints for health, devices, alarms, and threshold management
+---
 
 ## Services
 
-### `mosquitto`
+| Service | Image | Port | Purpose |
+|---|---|---|---|
+| `mosquitto` | eclipse-mosquitto:2 | 1883 / 9001 | MQTT broker for device messages |
+| `influxdb` | influxdb:2.7 | 8086 | Time-series database |
+| `telegraf` | telegraf:1.30 | — | MQTT → InfluxDB pipeline |
+| `grafana` | grafana/grafana:latest | 3000 | Dashboards and visualisation |
+| `api` | Built locally | 8000 | FastAPI — alarms, thresholds, device registry |
 
-- Image: `eclipse-mosquitto:2`
-- Ports:
-  - `1883` MQTT
-  - `9001` WebSocket
-- Persistent data:
-  - `./mosquitto/config`
-  - `./mosquitto/data`
-  - `./mosquitto/log`
-
-Current config:
-
-- anonymous access is enabled
-- persistence is enabled
-- logs are written to `/mosquitto/log/mosquitto.log`
-
-### `influxdb`
-
-- Image: `influxdb:2.7`
-- Port: `8086`
-- Persistent data:
-  - named volume `influxdb_data`
-
-Initialized from `.env`:
-
-- `INFLUXDB_USERNAME`
-- `INFLUXDB_PASSWORD`
-- `INFLUXDB_ORG`
-- `INFLUXDB_BUCKET`
-- `INFLUXDB_TOKEN`
-
-### `telegraf`
-
-- Image: `telegraf:1.30`
-- Reads MQTT topics:
-  - `IESWIC3A/#`
-  - `IESWIC3A/+/config`
-- Writes into InfluxDB measurement names:
-  - `IESWIC3A`
-  - `device_config`
-
-Important:
-
-- The InfluxDB token, org, and bucket are currently hardcoded in [`telegraf/telegraf.conf`](./telegraf/telegraf.conf).
-- Keep them aligned with `.env`, especially `token`, `organization`, and `bucket`.
-
-### `grafana`
-
-- Image: `grafana/grafana:latest`
-- Port: `3000`
-- Persistent data:
-  - named volume `grafana_data`
-
-### `api`
-
-- Built locally from [`api/Dockerfile`](./api/Dockerfile)
-- Runs FastAPI on port `8000`
-- Uses `network_mode: host`
-- Reads InfluxDB connection settings from environment variables
-
-Main purpose:
-
-- health check
-- fetch latest device readings
-- fetch active alarm state and history
-- acknowledge alarms
-- read and update device thresholds
-- store and return device IP registry data
+---
 
 ## Project Structure
 
-```text
+```
 esp32-influx/
 ├── api/
 │   ├── Dockerfile
-│   ├── main.py
+│   ├── main.py            ← FastAPI application
 │   └── requirements.txt
 ├── mosquitto/
 │   ├── config/
+│   │   └── mosquitto.conf
 │   ├── data/
 │   └── log/
 ├── telegraf/
-│   └── telegraf.conf
-├── .env
+│   └── telegraf.conf      ← MQTT topic subscriptions and field mappings
+├── .env                   ← Credentials (never commit this)
+├── .gitignore
 └── docker-compose.yml
 ```
 
-## Requirements
+---
 
-Before starting:
+## Quick Start
 
-- Docker installed
-- Docker Compose available
-- ESP32 devices publishing to the expected MQTT topics
+### 1. Configure environment
 
-## Environment Variables
+Copy the example and fill in your values:
 
-Configured in [`.env`](./.env):
+```bash
+cp .env.example .env
+```
 
+`.env` contents:
 ```env
 INFLUXDB_USERNAME=admin
-INFLUXDB_PASSWORD=admin1234
+INFLUXDB_PASSWORD=yourpassword
 INFLUXDB_ORG=myorg
 INFLUXDB_BUCKET=esp32_sensors
-INFLUXDB_TOKEN=my-super-secret-token
+INFLUXDB_TOKEN=your-secret-token
 ```
 
-Notes:
+> **Important:** If you change `INFLUXDB_TOKEN`, `INFLUXDB_ORG` or `INFLUXDB_BUCKET`, update `telegraf/telegraf.conf` to match.
 
-- These values initialize InfluxDB on first startup.
-- If you change the token, bucket, or org, also update `telegraf/telegraf.conf`.
-
-## Start the Stack
-
-From the `esp32-influx` directory:
+### 2. Start the stack
 
 ```bash
+cd esp32-influx
 docker-compose up -d
 ```
 
-Or with the newer CLI:
-
-```bash
-docker compose up -d
-```
-
-## Stop the Stack
-
-```bash
-docker-compose down
-```
-
-This stops and removes containers, but does not remove named volumes unless you add `-v`.
-
-## Restart the Stack
-
-```bash
-docker-compose down
-docker-compose up -d
-```
-
-This is normally safe and should not destroy your persisted data.
-
-Data that survives a normal restart:
-
-- InfluxDB data in `influxdb_data`
-- Grafana data in `grafana_data`
-- Mosquitto files in `./mosquitto/data`
-
-Dangerous command:
-
-```bash
-docker-compose down -v
-```
-
-That removes named volumes and can delete stored InfluxDB and Grafana data.
-
-## Check Container Status
+### 3. Verify everything is running
 
 ```bash
 docker-compose ps
 ```
 
-## View Logs
+All containers should show `healthy` or `running`. InfluxDB takes ~30 seconds to initialise on first boot.
 
-All services:
+### 4. Access the services
 
-```bash
-docker-compose logs -f
-```
+| Service | URL | Default credentials |
+|---|---|---|
+| Grafana | http://\<pi-ip\>:3000 | admin / admin |
+| InfluxDB | http://\<pi-ip\>:8086 | from .env |
+| FastAPI docs | http://\<pi-ip\>:8000/docs | — |
 
-Single service examples:
+---
 
-```bash
-docker-compose logs -f api
-docker-compose logs -f influxdb
-docker-compose logs -f grafana
-docker-compose logs -f mosquitto
-docker-compose logs -f telegraf
-```
+## API
 
-## Rebuild the API Container
+The FastAPI service exposes endpoints for device management, alarm handling and threshold configuration. Interactive docs are available at `/docs`.
 
-If you change files in `api/`:
+### Endpoint summary
 
-```bash
-docker-compose up -d --build api
-```
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/health` | Service health check |
+| `GET` | `/api/devices` | List all active device IDs |
+| `GET` | `/api/devices/{id}/latest` | Latest sensor reading for a device |
+| `GET` | `/api/devices/registry` | Show registered device IPs |
+| `POST` | `/api/devices/{id}/register` | Register a device LAN IP |
+| `GET` | `/api/alarms/active` | All unacknowledged alarms (flat) |
+| `GET` | `/api/alarms/active/grouped` | Alarms grouped by device |
+| `GET` | `/api/alarms/history?hours=24` | Alarm history (1–720 h) |
+| `POST` | `/api/alarms/{id}/{type}/acknowledge` | Acknowledge one alarm |
+| `POST` | `/api/alarms/acknowledge-all` | Acknowledge all active alarms |
+| `GET` | `/api/thresholds/{id}` | Read thresholds for a device |
+| `POST` | `/api/thresholds/{id}` | Set thresholds for one device |
+| `POST` | `/api/thresholds/batch` | Set thresholds for multiple devices |
+| `GET` | `/api/devices/{id}/thresholds_from_device` | Read thresholds from physical device |
 
-Or rebuild the whole stack:
+### Alert types
 
-```bash
-docker-compose up -d --build
-```
+`temp_high` · `temp_low` · `hum_high` · `hum_low` · `aqi_high` · `tvoc_high` · `co2_high`
 
-## Exposed Ports
+### Default thresholds
 
-- `1883`: Mosquitto MQTT
-- `9001`: Mosquitto WebSocket
-- `3000`: Grafana
-- `8086`: InfluxDB
-- `8000`: FastAPI service
+| Parameter | Default |
+|---|---|
+| temp_high | 30.0 °C |
+| temp_low | 5.0 °C |
+| hum_high | 80.0 % |
+| hum_low | 20.0 % |
+| aqi_high | 3 (Moderate) |
+| co2_high | 1000 ppm |
+| tvoc_high | 500 ppb |
 
-## API Endpoints
-
-Examples based on [`api/main.py`](./api/main.py):
-
-- `GET /health`
-- `GET /api/devices`
-- `GET /api/devices/{device_id}/latest`
-- `GET /api/alarms/active`
-- `GET /api/alarms/active/grouped`
-- `GET /api/alarms/history`
-- `POST /api/alarms/{device_id}/{alert_type}/acknowledge`
-- `POST /api/alarms/acknowledge-all`
-- `GET /api/thresholds/{device_id}`
-- `POST /api/thresholds/{device_id}`
-- `POST /api/thresholds/batch`
-- `GET /api/devices/registry`
-- `POST /api/devices/{device_id}/register`
-- `GET /api/devices/{device_id}/thresholds_from_device`
-
-FastAPI docs are available at:
-
-- `http://<host>:8000/docs`
+---
 
 ## MQTT Topics
 
-The current Telegraf config expects:
+| Topic | Written by | Content |
+|---|---|---|
+| `IESWIC3A/data` | ESP32 devices | Full sensor payload (telemetry) |
+| `IESWIC3A/{device_id}/config` | API / device | Threshold configuration |
 
-- sensor data topics under `IESWIC3A/#`
-- threshold/config topics under `IESWIC3A/+/config`
+### Sensor payload fields
 
-Fields parsed from sensor payloads include:
+`device_id` · `firmware` · `rssi` · `temperature` · `humidity` · `aqi` · `aqi_label` · `tvoc` · `eco2` · `air_quality_status` · `alert_temp` · `alert_hum` · `light_on`
 
-- `device_id`
-- `firmware`
-- `rssi`
-- `temperature`
-- `humidity`
-- `alert_temp`
-- `alert_hum`
-- `aqi`
-- `aqi_label`
-- `tvoc`
-- `eco2`
-- `air_quality_status`
-- `light_on`
+---
 
-Fields parsed from config payloads include:
-
-- `temp_high`
-- `temp_low`
-- `hum_high`
-- `hum_low`
-- `aqi_high`
-- `co2_high`
-- `tvoc_high`
-
-## Health Checks
-
-Compose health checks are configured for:
-
-- `mosquitto`
-- `influxdb`
-- `telegraf`
-- `grafana`
-- `api`
-
-Useful commands:
+## Common Operations
 
 ```bash
-docker-compose ps
-docker inspect --format='{{json .State.Health}}' mosquitto
-docker inspect --format='{{json .State.Health}}' influxdb
-docker inspect --format='{{json .State.Health}}' grafana
-docker inspect --format='{{json .State.Health}}' iot-api
-```
-
-## Common Admin Tasks
-
-### Stop everything
-
-```bash
-docker-compose down
-```
-
-### Start everything
-
-```bash
+# Start everything
 docker-compose up -d
-```
 
-### Restart one service
+# Stop everything (data is preserved)
+docker-compose down
 
-```bash
-docker-compose restart api
-```
-
-### Rebuild API after code changes
-
-```bash
+# Rebuild API after code changes
 docker-compose up -d --build api
+
+# Follow API logs
+docker-compose logs -f api
+
+# Restart one service
+docker-compose restart api
+
+# View all service status
+docker-compose ps
 ```
 
-### Follow API logs
+> ⚠️ `docker-compose down -v` removes named volumes and **deletes all InfluxDB and Grafana data**. Use with caution.
+
+---
+
+## Alarm Logic
+
+The API runs a background processor every **30 seconds** that:
+
+1. Reads the latest sensor values from InfluxDB for each active device
+2. Compares them against per-device thresholds (or defaults if none set)
+3. Writes an `alert_events` record when a threshold is breached
+4. **Auto-resolves** alarms when the value returns within range
+5. Suppresses duplicate alarms — a new alarm is only written when the previous one has been acknowledged or resolved
+
+---
+
+## Remote Access
+
+The API is exposed publicly via a Cloudflare Tunnel running as a systemd service on the Pi. The tunnel URL is assigned automatically and can be retrieved with:
 
 ```bash
-docker-compose logs -f api
+sudo journalctl -u cloudflared | grep trycloudflare
 ```
 
-## Notes and Caveats
+If the Pi reboots, the service restarts automatically but the URL changes.
 
-- `api` uses `network_mode: host`, so it shares the host network stack instead of the Compose network.
-- `mosquitto` currently allows anonymous connections. That is convenient for local testing, but not ideal for untrusted networks.
-- `grafana/grafana:latest` will move over time. Pinning a version can make deployments more predictable.
-- `telegraf/telegraf.conf` currently hardcodes InfluxDB connection settings instead of reading them from environment variables.
+---
 
 ## Troubleshooting
 
-### API cannot reach InfluxDB
+**API cannot reach InfluxDB**
+- Check `INFLUXDB_TOKEN`, `INFLUXDB_ORG` and `INFLUXDB_BUCKET` in `.env`
+- Confirm InfluxDB is healthy: `docker-compose ps`
+- The API uses `network_mode: host` and connects to `127.0.0.1:8086`
 
-Check:
+**No sensor data in InfluxDB**
+- Confirm ESP32 devices are publishing to `IESWIC3A/#`
+- Check Telegraf logs: `docker-compose logs telegraf`
+- Verify topic and field names match `telegraf/telegraf.conf`
 
-- InfluxDB is healthy
-- `INFLUXDB_TOKEN`, `INFLUXDB_ORG`, and `INFLUXDB_BUCKET` are correct
-- the `api` container is running
+**Alarms not appearing**
+- Check that the alarm processor is running: `docker-compose logs api | grep "Checking"`
+- Confirm sensor readings are present: `GET /api/devices/{id}/latest`
+- Check thresholds are set correctly: `GET /api/thresholds/{id}`
 
-### No sensor data in InfluxDB
+**Mosquitto permission denied on mosquitto.db**
+- Fix ownership: `sudo chown -R 1883:1883 mosquitto/data`
 
-Check:
+**Grafana datasource error**
+- Verify InfluxDB is healthy and the token in Grafana settings matches `.env`
 
-- ESP32 devices are publishing to MQTT
-- Mosquitto is running on port `1883`
-- Telegraf is healthy
-- topic names match `IESWIC3A/#`
-- payload field names match `telegraf/telegraf.conf`
+---
 
-### Restart did not pick up API code changes
+## Security Notes
 
-Use:
+- Mosquitto currently allows **anonymous connections** — suitable for a trusted LAN, not for internet-facing deployments
+- The API key for external access is set via `API_KEY` in `docker-compose.yml` under the `api` service environment
+- Never commit `.env` — it is listed in `.gitignore`
+- `telegraf/telegraf.conf` currently hardcodes the InfluxDB token — keep it aligned with `.env`
+
+---
+
+## Health Checks
 
 ```bash
-docker-compose up -d --build api
-```
+# Check container health states
+docker-compose ps
 
-because the `api` service is built from the local Dockerfile.
+# Inspect individual health
+docker inspect --format='{{json .State.Health}}' iot-api
+docker inspect --format='{{json .State.Health}}' influxdb
+docker inspect --format='{{json .State.Health}}' mosquitto
+docker inspect --format='{{json .State.Health}}' grafana
+```
