@@ -11,13 +11,21 @@ from influxdb_client.client.write_api import SYNCHRONOUS
 import httpx
 import logging
 
+#*======================= Setup and Config =====================
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = FastAPI(
     title="BOSS FARM Sensors API",
-    description="Real-time alarm management for IESWIC3A multi-sensor devices",
-    version="1.0.0"
+    description="Real-time data management API for IESWIC3A multi-sensor devices",
+    version="1.0.0",
+    openapi_tags=[
+        {"name": "Health",     "description": "Service status"},
+        {"name": "Devices",    "description": "Device discovery, readings and IP registry"},
+        {"name": "Alarms",     "description": "Active alarms, history and acknowledgement"},
+        {"name": "Thresholds", "description": "Read and update alert thresholds per device"},
+    ],
 )
 
 API_KEY = os.getenv("API_KEY", "bossfarm-secret-2024")
@@ -51,6 +59,17 @@ class ActiveAlarm(BaseModel):
     threshold:    float
     triggered_at: str
     time_elapsed: str
+
+class ActiveAlarmEntry(BaseModel):
+    alert_type: str
+    value: float
+    threshold: float
+    triggered_at: str
+    time_elapsed: str
+
+class DeviceActiveAlarms(BaseModel):
+    device_id: str
+    alarms: List[ActiveAlarmEntry]
 
 class BatchThresholdUpdate(BaseModel):
     device_ids: Optional[List[str]] = None
@@ -98,6 +117,7 @@ ALARM_COOLDOWN_SECONDS = 300
 ALARM_QUERY_RANGE = os.getenv("ALARM_QUERY_RANGE", "-30d")
 _alarm_last_triggered: Dict[tuple, datetime] = {}
 
+#*======================= Helper Functions =====================
 
 async def push_thresholds_to_device(device_id: str, thresholds: Dict[str, float]) -> Optional[str]:
     device_ip = device_ip_registry.get(device_id)
@@ -178,24 +198,75 @@ def get_device_thresholds(device_id: str) -> Dict[str, float]:
 
 
 def write_alert_event(device_id: str, alert_type: str, value: float, threshold: float):
+    """Write an active (unacknowledged, unresolved) alert event."""
     try:
         ts = int(datetime.utcnow().timestamp())
         point = (
             f"alert_events,device_id={device_id},alert_type={alert_type} "
-            f"value={float(value):.4f},threshold={float(threshold):.4f},acknowledged=false {ts}"
+            f"value={float(value):.4f},threshold={float(threshold):.4f},acknowledged=false,resolved=false {ts}"
         )
+        write_api.write(bucket=INFLUXDB_BUCKET, org=INFLUXDB_ORG, write_precision="s", record=point)
+        logger.info(
+            f"Alert written: device_id={device_id}, alert_type={alert_type}, "
+            f"value={value}, threshold={threshold}, acknowledged=false, resolved=false"
+        )
+    except Exception as e:
+        logger.error(f"Error while writing alert event: {e}")
+
+
+def get_latest_alarm_state(device_id: str, alert_type: str) -> Optional[Dict[str, Any]]:
+    query = f'''
+    from(bucket: "{INFLUXDB_BUCKET}")
+      |> range(start: {ALARM_QUERY_RANGE})
+      |> filter(fn: (r) => r._measurement == "alert_events")
+      |> filter(fn: (r) => r.device_id == "{device_id}" and r.alert_type == "{alert_type}")
+      |> pivot(
+           rowKey:      ["_time", "device_id", "alert_type"],
+           columnKey:   ["_field"],
+           valueColumn: "_value"
+         )
+      |> sort(columns: ["_time"], desc: true)
+      |> limit(n: 1)
+    '''
+    try:
+        result = query_api.query(query=query, org=INFLUXDB_ORG)
+        records = [record for table in result for record in table.records]
+        if not records:
+            return None
+
+        record = records[0]
+        return {
+            "acknowledged": _parse_acknowledged(record.values.get("acknowledged", False)),
+            "resolved": _parse_acknowledged(record.values.get("resolved", False)),
+            "value": record.values.get("value"),
+            "threshold": record.values.get("threshold"),
+            "time": record.get_time(),
+        }
+    except Exception as e:
+        logger.error(f"Error reading latest alarm state for {device_id}/{alert_type}: {e}")
+        return None
+
+
+def resolve_alarm_if_active(device_id: str, alert_type: str):
+    latest = get_latest_alarm_state(device_id, alert_type)
+    if not latest:
+        return
+
+    # only resolve if currently active (unacknowledged and unresolved)
+    if latest["acknowledged"] or latest["resolved"]:
+        return
+
+    try:
+        ts = int(datetime.utcnow().timestamp())
         write_api.write(
             bucket=INFLUXDB_BUCKET,
             org=INFLUXDB_ORG,
             write_precision="s",
-            record=point,
+            record=f"alert_events,device_id={device_id},alert_type={alert_type} resolved=true,acknowledged=false {ts}",
         )
-        logger.info(
-            f"Alert written: device_id={device_id}, alert_type={alert_type}, "
-            f"value={value}, threshold={threshold}, acknowledged=false"
-        )
+        logger.info(f"Alarm auto-resolved: {device_id} - {alert_type}")
     except Exception as e:
-        logger.error(f"Error while writing alert event: {e}")
+        logger.error(f"Error auto-resolving alarm {device_id}/{alert_type}: {e}")
 
 
 def _is_cooldown_active(device_id: str, alert_type: str) -> bool:
@@ -257,15 +328,21 @@ def _fetch_active_alarm_models() -> List[ActiveAlarm]:
 
     alarms: List[ActiveAlarm] = []
     seen = set()
+
     for record in records:
         device_id = record.values.get("device_id", "unknown")
         alert_type = record.values.get("alert_type", "unknown")
         alarm_key = (device_id, alert_type)
 
+        # keep only newest state per (device_id, alert_type)
         if alarm_key in seen:
             continue
 
-        if _parse_acknowledged(record.values.get("acknowledged", False)):
+        acknowledged = _parse_acknowledged(record.values.get("acknowledged", False))
+        resolved = _parse_acknowledged(record.values.get("resolved", False))
+
+        # not active if either acknowledged OR resolved
+        if acknowledged or resolved:
             seen.add(alarm_key)
             continue
 
@@ -274,6 +351,8 @@ def _fetch_active_alarm_models() -> List[ActiveAlarm]:
         threshold = record.values.get("threshold")
 
         if triggered_at is None or value is None or threshold is None:
+            # still mark key as consumed, this is latest record for this key
+            seen.add(alarm_key)
             continue
 
         try:
@@ -285,6 +364,7 @@ def _fetch_active_alarm_models() -> List[ActiveAlarm]:
                 triggered_at=triggered_at.isoformat(),
                 time_elapsed=_format_elapsed(triggered_at),
             )
+            alarms.append(alarm)
         except (TypeError, ValueError):
             logger.warning(
                 "Skipping malformed active alarm record for %s/%s: value=%r threshold=%r",
@@ -293,9 +373,7 @@ def _fetch_active_alarm_models() -> List[ActiveAlarm]:
                 value,
                 threshold,
             )
-            continue
 
-        alarms.append(alarm)
         seen.add(alarm_key)
 
     return alarms
@@ -312,35 +390,63 @@ def check_thresholds_and_trigger_alarms(device_id: str, reading: Dict):
     thresholds = get_device_thresholds(device_id)
 
     def maybe_trigger(alert_type: str, value: float, threshold: float):
-        if not _is_cooldown_active(device_id, alert_type):
-            write_alert_event(device_id, alert_type, value, threshold)
-            _mark_alarm_triggered(device_id, alert_type)
+        latest = get_latest_alarm_state(device_id, alert_type)
 
+        # already active => do not duplicate
+        if latest and (not latest["acknowledged"]) and (not latest["resolved"]):
+            return
+
+        # never existed OR resolved OR acknowledged => create fresh active alarm
+        write_alert_event(device_id, alert_type, value, threshold)
+
+    # Temperature high/low
     if temp is not None and temp != 0.0:
         if temp > thresholds["temp_high"]:
             maybe_trigger("temp_high", temp, thresholds["temp_high"])
+            resolve_alarm_if_active(device_id, "temp_low")
         elif temp < thresholds["temp_low"]:
             maybe_trigger("temp_low", temp, thresholds["temp_low"])
+            resolve_alarm_if_active(device_id, "temp_high")
+        else:
+            resolve_alarm_if_active(device_id, "temp_high")
+            resolve_alarm_if_active(device_id, "temp_low")
 
+    # Humidity high/low
     if hum is not None and hum != 0.0:
         if hum > thresholds["hum_high"]:
             maybe_trigger("hum_high", hum, thresholds["hum_high"])
+            resolve_alarm_if_active(device_id, "hum_low")
         elif hum < thresholds["hum_low"]:
             maybe_trigger("hum_low", hum, thresholds["hum_low"])
+            resolve_alarm_if_active(device_id, "hum_high")
+        else:
+            resolve_alarm_if_active(device_id, "hum_high")
+            resolve_alarm_if_active(device_id, "hum_low")
 
+    # AQI high
     aqi = reading.get("aqi")
     if aqi is not None and aqi != 0:
         if reading.get("air_quality_status") != "Error" and reading.get("aqi_label") != "Unknown":
             if int(aqi) > int(thresholds["aqi_high"]):
                 maybe_trigger("aqi_high", float(aqi), thresholds["aqi_high"])
+            else:
+                resolve_alarm_if_active(device_id, "aqi_high")
 
+    # TVOC high
     tvoc = reading.get("tvoc")
-    if tvoc is not None and tvoc > 0 and tvoc > thresholds["tvoc_high"]:
-        maybe_trigger("tvoc_high", float(tvoc), thresholds["tvoc_high"])
+    if tvoc is not None and tvoc > 0:
+        if tvoc > thresholds["tvoc_high"]:
+            maybe_trigger("tvoc_high", float(tvoc), thresholds["tvoc_high"])
+        else:
+            resolve_alarm_if_active(device_id, "tvoc_high")
 
+    # CO2 high
     eco2 = reading.get("eco2")
-    if eco2 is not None and eco2 > 0 and eco2 > thresholds["co2_high"]:
-        maybe_trigger("co2_high", float(eco2), thresholds["co2_high"])
+    if eco2 is not None and eco2 > 0:
+        if eco2 > thresholds["co2_high"]:
+            maybe_trigger("co2_high", float(eco2), thresholds["co2_high"])
+        else:
+            resolve_alarm_if_active(device_id, "co2_high")
 
 
 async def discover_devices():
@@ -397,23 +503,59 @@ async def alarm_processor_task():
             await asyncio.sleep(30)
 
 
+def has_unacknowledged_alarm(device_id: str, alert_type: str) -> bool:
+    query = f'''
+    from(bucket: "{INFLUXDB_BUCKET}")
+      |> range(start: {ALARM_QUERY_RANGE})
+      |> filter(fn: (r) => r._measurement == "alert_events")
+      |> filter(fn: (r) => r.device_id == "{device_id}" and r.alert_type == "{alert_type}")
+      |> pivot(
+           rowKey:      ["_time", "device_id", "alert_type"],
+           columnKey:   ["_field"],
+           valueColumn: "_value"
+         )
+      |> sort(columns: ["_time"], desc: true)
+      |> limit(n: 1)
+    '''
+    try:
+        result = query_api.query(query=query, org=INFLUXDB_ORG)
+        records = [rec for tbl in result for rec in tbl.records]
+        if not records:
+            return False  # never triggered before
+        latest = records[0]
+        return _parse_acknowledged(latest.values.get("acknowledged", False)) is False
+    except Exception as e:
+        logger.error(f"Error checking alarm state for {device_id}/{alert_type}: {e}")
+        return False
+
+#*======================= All API Endpoints =======================
+
+#-------------------------------- Startup & Health -------------------------------------------------
 @app.on_event("startup")
 async def startup_event():
     asyncio.create_task(alarm_processor_task())
     asyncio.create_task(device_discovery_task())
     logger.info("Alarm processor and device discovery tasks started")
 
-
-@app.get("/health")
+@app.get("/health", tags=["Health"])
 async def health_check():
     return {"status": "ok", "service": "IoT Alarm API", "timestamp": datetime.utcnow().isoformat()}
 
-@app.get("/api/devices", response_model=List[str])
+#-------------------------------------- Devices & Readings ------------------------------------------
+@app.get("/api/devices", response_model=List[str], tags=["Devices"])
 async def get_devices():
     return get_latest_device_ids()
 
+@app.get("/api/devices/{device_id}/latest", tags=["Devices"])
+async def get_device_latest_reading(device_id: str):
+    reading = get_latest_sensor_reading(device_id)
+    if not reading:
+        raise HTTPException(status_code=404, detail=f"No recent data for device {device_id}")
+    return {"device_id": device_id, "reading": reading, "timestamp": datetime.utcnow().isoformat()}
 
-@app.get("/api/alarms/active", response_model=List[ActiveAlarm])
+
+#-------------------------------------- Alarms ------------------------------------------------------
+@app.get("/api/alarms/active", response_model=List[ActiveAlarm], tags=["Alarms"])
 async def get_active_alarms():
     try:
         alarms = _fetch_active_alarm_models()
@@ -423,8 +565,29 @@ async def get_active_alarms():
         logger.error(f"Error fetching active alarms: {e}", exc_info=True)
         return []
 
+@app.get("/api/alarms/active/grouped", response_model=List[DeviceActiveAlarms], tags=["Alarms"])
+async def get_active_alarms_grouped():
+    alarms = _fetch_active_alarm_models()
+    grouped: Dict[str, List[ActiveAlarmEntry]] = {}
 
-@app.get("/api/alarms/history")
+    for a in alarms:
+        grouped.setdefault(a.device_id, []).append(
+            ActiveAlarmEntry(
+                alert_type=a.alert_type,
+                value=a.value,
+                threshold=a.threshold,
+                triggered_at=a.triggered_at,
+                time_elapsed=a.time_elapsed,
+            )
+        )
+
+    return [
+        DeviceActiveAlarms(device_id=device_id, alarms=entries)
+        for device_id, entries in grouped.items()
+    ]
+
+
+@app.get("/api/alarms/history", tags=["Alarms"])
 async def get_alarm_history(hours: int = Query(24, ge=1, le=720)):
     query = f'''
     from(bucket: "{INFLUXDB_BUCKET}")
@@ -457,7 +620,7 @@ async def get_alarm_history(hours: int = Query(24, ge=1, le=720)):
         return []
 
 
-@app.post("/api/alarms/{device_id}/{alert_type}/acknowledge")
+@app.post("/api/alarms/{device_id}/{alert_type}/acknowledge", tags=["Alarms"])
 async def acknowledge_alarm(device_id: str, alert_type: str):
     try:
         ts = int(datetime.utcnow().timestamp())
@@ -473,7 +636,7 @@ async def acknowledge_alarm(device_id: str, alert_type: str):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/api/alarms/acknowledge-all")
+@app.post("/api/alarms/acknowledge-all", tags=["Alarms"])
 async def acknowledge_all_alarms():
     try:
         alarms = _fetch_active_alarm_models()
@@ -504,8 +667,8 @@ async def acknowledge_all_alarms():
         logger.error(f"Error acknowledging all alarms: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
-
-@app.post("/api/thresholds/batch")
+#-------------------------------------- Thresholds ----------------------------------------------------
+@app.post("/api/thresholds/batch", tags=["Thresholds"])
 async def set_thresholds_batch(update: BatchThresholdUpdate):
     device_ids = update.device_ids if update.device_ids else list(device_ip_registry.keys())
     if not device_ids:
@@ -532,12 +695,12 @@ async def set_thresholds_batch(update: BatchThresholdUpdate):
     return {"updated": len([r for r in results if r["status"] == "updated"]), "results": results}
 
 
-@app.get("/api/thresholds/{device_id}", response_model=Dict[str, float])
+@app.get("/api/thresholds/{device_id}", response_model=Dict[str, float], tags=["Thresholds"])
 async def get_thresholds(device_id: str):
     return get_device_thresholds(device_id)
 
 
-@app.post("/api/thresholds/{device_id}")
+@app.post("/api/thresholds/{device_id}", tags=["Thresholds"])
 async def set_thresholds(device_id: str, config: DeviceConfig):
     try:
         ts      = int(datetime.utcnow().timestamp())
@@ -561,17 +724,7 @@ async def set_thresholds(device_id: str, config: DeviceConfig):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/api/devices/{device_id}/register")
-async def register_device_ip(device_id: str, ip: str = Body(..., embed=True)):
-    device_ip_registry[device_id] = ip
-    logger.info(f"Device IP registered: {device_id} -> {ip}")
-    return {"status": "registered", "device_id": device_id, "ip": ip}
-
-@app.get("/api/devices/registry")
-async def get_device_registry():
-    return device_ip_registry
-
-@app.get("/api/devices/{device_id}/thresholds_from_device")
+@app.get("/api/devices/{device_id}/thresholds_from_device", tags=["Devices"])
 async def get_thresholds_from_device(device_id: str):
     device_ip = device_ip_registry.get(device_id)
     if not device_ip:
@@ -585,13 +738,20 @@ async def get_thresholds_from_device(device_id: str):
     except httpx.RequestError as e:
         raise HTTPException(status_code=502, detail=f"Cannot reach device at {device_ip}: {e}")
 
-@app.get("/api/devices/{device_id}/latest")
-async def get_device_latest_reading(device_id: str):
-    reading = get_latest_sensor_reading(device_id)
-    if not reading:
-        raise HTTPException(status_code=404, detail=f"No recent data for device {device_id}")
-    return {"device_id": device_id, "reading": reading, "timestamp": datetime.utcnow().isoformat()}
 
+#-------------------------------------- Device IP Registry ------------------------------------------------
+@app.get("/api/devices/registry", tags=["Devices"])
+async def get_device_registry():
+    return device_ip_registry
+
+@app.post("/api/devices/{device_id}/register", tags=["Devices"])
+async def register_device_ip(device_id: str, ip: str = Body(..., embed=True)):
+    device_ip_registry[device_id] = ip
+    logger.info(f"Device IP registered: {device_id} -> {ip}")
+    return {"status": "registered", "device_id": device_id, "ip": ip}
+
+
+#*======================= Run the API =======================
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
