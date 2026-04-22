@@ -1,4 +1,4 @@
-# BOSS FARM — ESP32 IoT Monitoring Stack
+# Docker Container API — ESP32 IoT Monitoring Stack
 
 ![Mosquitto](https://img.shields.io/badge/Mosquitto-MQTT_Broker-ff6600?style=flat-square)
 ![InfluxDB](https://img.shields.io/badge/InfluxDB-2.7-22ADF6?style=flat-square)
