@@ -144,7 +144,7 @@ async def push_thresholds_to_device(device_id: str, thresholds: Dict[str, float]
 def get_latest_device_ids() -> List[str]:
     query = f'''
     from(bucket: "{INFLUXDB_BUCKET}")
-      |> range(start: -1h)
+      |> range(start: -6h)
       |> filter(fn: (r) => r._measurement == "IESWIC3A")
       |> keep(columns: ["device_id", "_time"])
       |> group(columns: ["device_id"])
@@ -162,7 +162,7 @@ def get_latest_device_ids() -> List[str]:
 def get_latest_sensor_reading(device_id: str) -> Optional[Dict]:
     query = f'''
     from(bucket: "{INFLUXDB_BUCKET}")
-      |> range(start: -5m)
+      |> range(start: -10m)
       |> filter(fn: (r) => r._measurement == "IESWIC3A" and r.device_id == "{device_id}")
       |> group(columns: ["_field"])
       |> last()
@@ -618,6 +618,55 @@ async def get_alarm_history(hours: int = Query(24, ge=1, le=720)):
     except Exception as e:
         logger.error(f"Error fetching alarm history: {e}")
         return []
+
+
+@app.get("/api/devices/{device_id}/history", tags=["Devices"])
+async def get_device_history(
+    device_id: str,
+    hours: int = Query(24, ge=1, le=720)
+):
+    """Get sensor reading history for a specific device over the last N hours."""
+    query = f'''
+    from(bucket: "{INFLUXDB_BUCKET}")
+      |> range(start: -{hours}h)
+      |> filter(fn: (r) => r._measurement == "IESWIC3A" and r.device_id == "{device_id}")
+      |> pivot(
+           rowKey:      ["_time", "device_id"],
+           columnKey:   ["_field"],
+           valueColumn: "_value"
+         )
+      |> sort(columns: ["_time"], desc: true)
+    '''
+    try:
+        result = query_api.query(query=query, org=INFLUXDB_ORG)
+        readings = []
+        for table in result:
+            for record in table.records:
+                readings.append({
+                    "timestamp":          record.get_time().isoformat(),
+                    "device_id":          record.values.get("device_id",          device_id),
+                    "temperature":        record.values.get("temperature"),
+                    "humidity":           record.values.get("humidity"),
+                    "aqi":                record.values.get("aqi"),
+                    "aqi_label":          record.values.get("aqi_label"),
+                    "tvoc":               record.values.get("tvoc"),
+                    "eco2":               record.values.get("eco2"),
+                    "air_quality_status": record.values.get("air_quality_status"),
+                    "light_on":           record.values.get("light_on"),
+                    "alert_temp":         record.values.get("alert_temp"),
+                    "alert_hum":          record.values.get("alert_hum"),
+                    "rssi":               record.values.get("rssi"),
+                    "firmware":           record.values.get("firmware"),
+                })
+        return {
+            "device_id": device_id,
+            "hours":     hours,
+            "count":     len(readings),
+            "readings":  readings,
+        }
+    except Exception as e:
+        logger.error(f"Error fetching device history for {device_id}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/api/alarms/{device_id}/{alert_type}/acknowledge", tags=["Alarms"])
