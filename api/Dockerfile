@@ -18,4 +18,4 @@ COPY main.py .
 RUN useradd --no-create-home --shell /bin/false appuser
 USER appuser
 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]

@@ -35,7 +35,7 @@ services:
       - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${INFLUXDB_TOKEN}
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8086/api/v2/ready"]
+      test: ["CMD", "curl", "-f", "http://localhost:8086/ping"]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -66,7 +66,7 @@ services:
       - grafana_data:/var/lib/grafana
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -77,15 +77,18 @@ services:
       context: ./api
       dockerfile: Dockerfile
     container_name: iot-api
-    network_mode: host
+    ports:
+      - "8000:8000"
     environment:
-      - INFLUXDB_URL=http://127.0.0.1:8086
+      - INFLUXDB_URL=http://influxdb:8086
       - INFLUXDB_TOKEN=${INFLUXDB_TOKEN}
       - INFLUXDB_ORG=${INFLUXDB_ORG}
       - INFLUXDB_BUCKET=${INFLUXDB_BUCKET}
       - DEVICE_SUBNET=192.168.0
+      - ALARM_QUERY_RANGE=-7d
     depends_on:
-      - influxdb
+      influxdb:
+        condition: service_healthy
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]

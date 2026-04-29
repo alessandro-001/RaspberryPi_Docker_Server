@@ -149,7 +149,7 @@ def get_latest_device_ids() -> List[str]:
       |> keep(columns: ["device_id", "_time"])
       |> group(columns: ["device_id"])
       |> last(column: "_time")
-    '''
+    '''  	
     try:
         result = query_api.query(query=query, org=INFLUXDB_ORG)
         ids = [r.values.get("device_id") for t in result for r in t.records]
@@ -666,6 +666,87 @@ async def get_device_history(
         }
     except Exception as e:
         logger.error(f"Error fetching device history for {device_id}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/devices/{device_id}/history/range", tags=["Devices"])
+async def get_device_history_range(
+    device_id: str,
+    start: str = Query(..., description="Start: YYYY-MM-DD or YYYY-MM-DDTHH:MM:SSZ"),
+    end: str   = Query(..., description="End: YYYY-MM-DD or YYYY-MM-DDTHH:MM:SSZ"),
+):
+    """Get sensor reading history for a specific device between two ISO timestamps."""
+    def parse_dt(s: str) -> str:
+        s = s.strip()
+        formats = [
+            "%Y-%m-%dT%H:%M:%SZ",
+            "%Y-%m-%dT%H:%M:%S",
+            "%Y-%m-%dT%H:%M",
+            "%Y-%m-%d %H:%M",
+            "%Y-%m-%d",
+        ]
+        for fmt in formats:
+            try:
+                dt = datetime.strptime(s, fmt).replace(tzinfo=timezone.utc)
+                return dt.strftime("%Y-%m-%dT%H:%M:%SZ")
+            except ValueError:
+                continue
+        try:
+            dt = datetime.fromisoformat(s.replace("Z", "+00:00"))
+            return dt.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        except ValueError:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Cannot parse datetime: '{s}'. Use YYYY-MM-DD or YYYY-MM-DDTHH:MM:SSZ"
+            )
+
+    start_norm = parse_dt(start)
+    end_norm   = parse_dt(end)
+
+    query = f'''
+    from(bucket: "{INFLUXDB_BUCKET}")
+      |> range(start: {start_norm}, stop: {end_norm})
+      |> filter(fn: (r) => r._measurement == "IESWIC3A" and r.device_id == "{device_id}")
+      |> pivot(
+           rowKey:      ["_time", "device_id"],
+           columnKey:   ["_field"],
+           valueColumn: "_value"
+         )
+      |> sort(columns: ["_time"], desc: true)
+      |> limit(n: 1000)
+    '''
+    try:
+        result = query_api.query(query=query, org=INFLUXDB_ORG)
+        readings = []
+        for table in result:
+            for record in table.records:
+                readings.append({
+                    "timestamp":          record.get_time().isoformat(),
+                    "device_id":          record.values.get("device_id",          device_id),
+                    "temperature":        record.values.get("temperature"),
+                    "humidity":           record.values.get("humidity"),
+                    "aqi":                record.values.get("aqi"),
+                    "aqi_label":          record.values.get("aqi_label"),
+                    "tvoc":               record.values.get("tvoc"),
+                    "eco2":               record.values.get("eco2"),
+                    "air_quality_status": record.values.get("air_quality_status"),
+                    "light_on":           record.values.get("light_on"),
+                    "alert_temp":         record.values.get("alert_temp"),
+                    "alert_hum":          record.values.get("alert_hum"),
+                    "rssi":               record.values.get("rssi"),
+                    "firmware":           record.values.get("firmware"),
+                })
+        return {
+            "device_id": device_id,
+            "start":     start_norm,
+            "end":       end_norm,
+            "count":     len(readings),
+            "readings":  readings,
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error fetching device history range for {device_id}: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
